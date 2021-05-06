@@ -1,0 +1,8 @@
+node_modules/
+.vscode/
+.config/
+.fable/
+obj/
+bin/
+.fake
+.ionide

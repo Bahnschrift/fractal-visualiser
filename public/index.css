@@ -1,0 +1,7 @@
+canvas {
+    border: 5px solid black;
+}
+
+#x, #y, #zoom {
+    width: 10%;
+}

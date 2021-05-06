@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Cookies.fs" />
+        <Compile Include="WebGLHelper.fs" />
+        <Compile Include="Shaders.fs" />
+        <Compile Include="App.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Fable.Browser.Dom" Version="2.2.0" />
+        <PackageReference Include="Fable.Browser.WebGL" Version="1.0.0" />
+        <PackageReference Include="Fable.Browser.XMLHttpRequest" Version="1.1.2" />
+        <PackageReference Include="Fable.Core" Version="3.2.3" />
+        <PackageReference Include="Fable.Fetch" Version="2.2.0" />
+        <Reference Include="System.IO" />
+    </ItemGroup>
+</Project>
