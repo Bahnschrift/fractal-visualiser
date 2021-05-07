@@ -295,6 +295,7 @@ document.onkeydown = ((e) => {
 });
 
 document.onkeyup = ((e) => {
+    const scale = 0.075;
     const matchValue = e.key;
     switch (matchValue) {
         case "w":
@@ -308,6 +309,49 @@ document.onkeyup = ((e) => {
         }
         default: {
         }
+    }
+    const enumerator = getEnumerator(keysDown());
+    try {
+        while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
+            const key = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
+            switch (key) {
+                case "w": {
+                    fieldY.value = (parse(fieldY.value) + (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "s": {
+                    fieldY.value = (parse(fieldY.value) - (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "a": {
+                    fieldX.value = (parse(fieldX.value) - (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "d": {
+                    fieldX.value = (parse(fieldX.value) + (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "q": {
+                    fieldZoom.value = (parse(fieldZoom.value) + (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "e": {
+                    fieldZoom.value = (parse(fieldZoom.value) - (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                default: {
+                }
+            }
+        }
+    }
+    finally {
+        enumerator.Dispose();
     }
 });
 

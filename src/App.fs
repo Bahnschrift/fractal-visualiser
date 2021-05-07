@@ -185,9 +185,19 @@ document.onkeydown <- fun e ->
         | "e" -> fieldZoom.value <- string <| float fieldZoom.value - float fieldZoom.value * scale; update()
         | _ -> ()
 document.onkeyup <- fun e ->
+    let scale = 0.075
     match e.key with
     | "w" | "s" | "a" | "d" | "q" | "e" -> keysDown <- keysDown.Remove e.key
     | _ -> ()
+    for key in keysDown do
+        match key with
+        | "w" -> fieldY.value <- string <| float fieldY.value + float fieldZoom.value * scale; update()
+        | "s" -> fieldY.value <- string <| float fieldY.value - float fieldZoom.value * scale; update()
+        | "a" -> fieldX.value <- string <| float fieldX.value - float fieldZoom.value * scale; update()
+        | "d" -> fieldX.value <- string <| float fieldX.value + float fieldZoom.value * scale; update()
+        | "q" -> fieldZoom.value <- string <| float fieldZoom.value + float fieldZoom.value * scale; update()
+        | "e" -> fieldZoom.value <- string <| float fieldZoom.value - float fieldZoom.value * scale; update()
+        | _ -> ()
 
 buttonFullscreen.onclick <- fun _ ->
     clear gl
