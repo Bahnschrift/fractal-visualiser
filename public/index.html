@@ -10,16 +10,46 @@
         <link rel="stylesheet" href="index.css"/>
     </head>
     <body>
+        <h1>Fractal Visualiser</h1>
         <form id="data">
-            <div class="container" id="commonvals">
-                <label for="x">X:</label>
-                <input type="number" class="input-group-text" id="x" name="x" value="-0.75" min="-2" max="2" step="0.1">
-                <label for="y">Y:</label>
-                <input type="number" class="input-group-text" id="y" name="y" value="0.0" min="-1" max="1" step="0.1">
-                <label for="zoom">Zoom:</label>
-                <input type="number" class="input-group-text" id="zoom" name="zoom" value="2.5" min="0" max="5" step="0.1">
+            <div class="container-fluid" id="settings">
+                <div class="row align-items-start">
+                    <div class="col-1 col-sm-2" id="settingsfractal">
+                        <h3>Fractal</h3>
+                        <input type="radio" class="fractal" id="mandelbrot" name="fractal" value="mandelbrot" checked="true">
+                        <label for="mandelbrot" class="fractal">Mandelbrot Set</label>
+                        <br>
+                        <input type="radio" class="fractal" id="julia" name="fractal" value="julia" checked="true">
+                        <label for="julia" class="fractal">Julia Set</label>
+                        <br>
+                        <input type="radio" class="fractal" id="mandelbox" name="fractal" value="mandelbox">
+                        <label for="mandelbox" class="fractal">Mandelbox</label>
+                        
+                    </div>
+                    <div class="col-2" id="settingsposition">
+                        <h3>Position</h3>
+                        <label for="x">X:</label>
+                        <input type="number" class="input-group-text" id="x" name="x" value="-0.75" min="-2" max="2" step="0.1">
+                        <label for="y">Y:</label>
+                        <input type="number" class="input-group-text" id="y" name="y" value="0.0" min="-1" max="1" step="0.1">
+                        <label for="zoom">Zoom:</label>
+                        <input type="number" class="input-group-text" id="zoom" name="zoom" value="2.5" min="0" max="5" step="0.1">
+                    </div>
+                    <div class="col-2" id="settingsjulia" hidden>
+                        <h3>Julia Set</h3>
+                        <label for="juliax">CX:</label>
+                        <input type="number" class="input-group-text" id="juliax" name="jualiax" value="0" min="-2" max="2" step="0.1">
+                        <label for="juliay">CX:</label>
+                        <input type="number" class="input-group-text" id="juliay" name="jualiay" value="0" min="-2" max="2" step="0.1">
+                    </div>
+                    <div class="col-2" id="settingsmandelbox" hidden>
+                        <h3>Mandelbox</h3>
+                        <label for="mandelboxscale">Scale:</label>
+                        <input type="number" class="input-group-text" id="mandelboxscale" name="mandelboxscale" value="3" min="-5" max="5" step="1">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary" id="reset">Reset</button>
             </div>
-            <button type="button" class="btn btn-outline-primary" id="reset">Reset</button>
         </form>
         <br>
         <canvas class="canv" width="400" height="400"></canvas>

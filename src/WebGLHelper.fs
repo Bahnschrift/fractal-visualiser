@@ -12,12 +12,12 @@ let createShaderProgram (gl: GL) vsSource fsSource =
     let vertexShader = gl.createShader(gl.VERTEX_SHADER)
     gl.shaderSource(vertexShader, vsSource)
     gl.compileShader(vertexShader)
-    Fable.Core.JS.console.log("VERTEX SHADER LOG:", gl.getShaderInfoLog(vertexShader))
+    // Fable.Core.JS.console.log("VERTEX SHADER LOG:", gl.getShaderInfoLog(vertexShader))
 
     let fragShader = gl.createShader(gl.FRAGMENT_SHADER)
     gl.shaderSource(fragShader, fsSource)
     gl.compileShader(fragShader)
-    Fable.Core.JS.console.log("FRAGMENT SHADER LOG:", gl.getShaderInfoLog(fragShader))
+    // Fable.Core.JS.console.log("FRAGMENT SHADER LOG:", gl.getShaderInfoLog(fragShader))
 
     let program = gl.createProgram()
     gl.attachShader(program, vertexShader)

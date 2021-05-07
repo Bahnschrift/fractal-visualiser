@@ -1,14 +1,11 @@
-import { some } from "./.fable/fable-library.3.1.1/Option.js";
 
 export function createShaderProgram(gl, vsSource, fsSource) {
     const vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertexShader, vsSource);
     gl.compileShader(vertexShader);
-    console.log(some("VERTEX SHADER LOG:"), gl.getShaderInfoLog(vertexShader));
     const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragShader, fsSource);
     gl.compileShader(fragShader);
-    console.log(some("FRAGMENT SHADER LOG:"), gl.getShaderInfoLog(fragShader));
     const program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragShader);

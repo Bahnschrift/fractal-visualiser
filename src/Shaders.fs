@@ -25,6 +25,10 @@ let fsMandel = """
     uniform float xc;
     uniform float yc;
     uniform float uRatio;
+    uniform float uGenerator;
+    uniform float uMandelboxScale;
+    uniform float uJuliaX;
+    uniform float uJuliaY;
 
     const float MAX = 500.;
 
@@ -54,15 +58,25 @@ let fsMandel = """
         for (int i = 0; i <= int(MAX); i++) {
             if (length(z) > 2.) {
                 return float(i);
-                // float smoothed = log2(log2(dot(z, z)) / 1.);
-                // return sqrt(float(i) + 10. - smoothed) * 2.;
             }
             z = vec2(z.x*z.x - z.y*z.y + c.x, 2.0*z.x*z.y + c.y);
         }
         return MAX;
     }
 
-    const float SCALE = 2.5;
+    float julia(float x, float y) {
+        vec2 c = vec2(uJuliaX, uJuliaY);
+        vec2 z = vec2(x, y);
+
+        for (int i = 0; i <= int(MAX); i++) {
+            if (length(z) > 2.) {
+                return float(i);
+            }
+            z = vec2(z.x*z.x - z.y*z.y + c.x, 2.0*z.x*z.y + c.y);
+        }
+        return MAX;
+    }
+
     float mandelbox(float x, float y) {
         vec2 c = vec2(x, y);
         vec2 z = c;
@@ -90,7 +104,7 @@ let fsMandel = """
                 z /= mag * mag;
             }
 
-            z = SCALE * z + c;
+            z = uMandelboxScale * z + c;
         }
 
         return 0.;
@@ -99,7 +113,17 @@ let fsMandel = """
     void main() {
         float x = xc + (vTextureCoord.x - 0.5) * uZoom * uRatio;
         float y = yc + (vTextureCoord.y - 0.5) * uZoom;
-        float m = mandelbrot(x, y);
+        float m = 0.0;
+        if (uGenerator == 1.0) {
+            m = mandelbrot(x, y);
+        } else if (uGenerator == 2.0) {
+            m = julia(x, y);
+        }  else if (uGenerator == 3.0) {
+            m = mandelbox(x, y);
+        } else {
+            gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.);
+            return;
+        }
 
         if (m == MAX) {
             gl_FragColor = vec4(0., 0., 0., 1.);
