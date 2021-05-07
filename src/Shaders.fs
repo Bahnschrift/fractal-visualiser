@@ -13,7 +13,8 @@ let vsMandel = glsl """
     void main() {
         gl_Position = aVertexPosition;
         vTextureCoord = aTextureCoord;
-    }"""
+    }
+    """
 
 let fsMandel = glsl """
     precision highp float;
@@ -130,4 +131,5 @@ let fsMandel = glsl """
             vec3 col = getPalatte(int(mod(m, 16.)));
             gl_FragColor = vec4(col.x, col.y, col.z, 1.);
         }
-    }"""
+    }
+    """
