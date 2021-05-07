@@ -83,6 +83,7 @@ let update () =
         if needResize then
             canvas.width <- displayWidth
             canvas.height <- displayHeight
+    
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
     let mutable y = float fieldY.value
@@ -146,6 +147,9 @@ update()
 fieldZoom.oninput <- fun _ -> update()
 fieldX.oninput <- fun _ -> update()
 fieldY.oninput <- fun _ -> update()
+fieldMandelboxScale.oninput <- fun _ -> update()
+fieldJuliaX.oninput <- fun _ -> update()
+fieldJuliaY.oninput <- fun _ -> update()
 fieldMandelbrot.oninput <- fun _ -> 
     divMandelbox.hidden <- true
     divJulia.hidden <- true
@@ -158,9 +162,6 @@ fieldMandelbox.oninput <- fun _ ->
     divJulia.hidden <- true
     divMandelbox.hidden <- false
     update()
-fieldMandelboxScale.oninput <- fun _ -> update()
-fieldJuliaX.oninput <- fun _ -> update()
-fieldJuliaY.oninput <- fun _ -> update()
 fieldJuliaPresets.oninput <- fun _ -> 
     let juliaPreset = int fieldJuliaPresets.value
     if juliaPreset <> -1 then

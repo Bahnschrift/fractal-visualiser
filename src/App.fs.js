@@ -189,33 +189,33 @@ fieldY.oninput = ((_arg3) => {
     update();
 });
 
-fieldMandelbrot.oninput = ((_arg4) => {
+fieldMandelboxScale.oninput = ((_arg4) => {
+    update();
+});
+
+fieldJuliaX.oninput = ((_arg5) => {
+    update();
+});
+
+fieldJuliaY.oninput = ((_arg6) => {
+    update();
+});
+
+fieldMandelbrot.oninput = ((_arg7) => {
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
 });
 
-fieldJulia.oninput = ((_arg5) => {
+fieldJulia.oninput = ((_arg8) => {
     divJulia.hidden = false;
     divMandelbox.hidden = true;
     update();
 });
 
-fieldMandelbox.oninput = ((_arg6) => {
+fieldMandelbox.oninput = ((_arg9) => {
     divJulia.hidden = true;
     divMandelbox.hidden = false;
-    update();
-});
-
-fieldMandelboxScale.oninput = ((_arg7) => {
-    update();
-});
-
-fieldJuliaX.oninput = ((_arg8) => {
-    update();
-});
-
-fieldJuliaY.oninput = ((_arg9) => {
     update();
 });
 
