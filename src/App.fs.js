@@ -3,8 +3,8 @@ import { findCookieValue } from "./Cookies.fs.js";
 import { some, value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
-import { parse } from "./.fable/fable-library.3.1.1/Int32.js";
-import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Double.js";
+import { parse } from "./.fable/fable-library.3.1.1/Double.js";
+import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Int32.js";
 import { int32ToString } from "./.fable/fable-library.3.1.1/Util.js";
 
 export const WIDTH = 1280;
@@ -104,20 +104,13 @@ clear(gl);
 export const shaderProgram = createShaderProgram(gl, vsMandel, fsMandel);
 
 export function update() {
-    const juliaPreset = parse(fieldJuliaPresets.value, 511, false, 32) | 0;
-    if (juliaPreset !== -1) {
-        console.log(some(juliaPresets[juliaPreset]));
-        const juliaPresetCoords = juliaPresets[juliaPreset];
-        fieldJuliaX.value = juliaPresetCoords[0].toString();
-        fieldJuliaY.value = juliaPresetCoords[1].toString();
-    }
-    const zoom = parse_1(fieldZoom.value);
-    let x = parse_1(fieldX.value);
-    let y = parse_1(fieldY.value);
+    const zoom = parse(fieldZoom.value);
+    let x = parse(fieldX.value);
+    let y = parse(fieldY.value);
     const generator = (fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldMandelbox.checked ? 3 : -1))) | 0;
-    const mandelboxScale = parse_1(fieldMandelboxScale.value);
-    const juliaX = parse_1(fieldJuliaX.value);
-    const juliaY = parse_1(fieldJuliaY.value);
+    const mandelboxScale = parse(fieldMandelboxScale.value);
+    const juliaX = parse(fieldJuliaX.value);
+    const juliaY = parse(fieldJuliaY.value);
     document.cookie = toText(printf("zoom=%f;"))(zoom);
     const arg10_1 = x;
     document.cookie = toText(printf("x=%f;"))(arg10_1);
@@ -208,6 +201,13 @@ fieldJuliaY.oninput = ((_arg9) => {
 });
 
 fieldJuliaPresets.oninput = ((_arg10) => {
+    const juliaPreset = parse_1(fieldJuliaPresets.value, 511, false, 32) | 0;
+    if (juliaPreset !== -1) {
+        console.log(some(juliaPresets[juliaPreset]));
+        const juliaPresetCoords = juliaPresets[juliaPreset];
+        fieldJuliaX.value = juliaPresetCoords[0].toString();
+        fieldJuliaY.value = juliaPresetCoords[1].toString();
+    }
     update();
 });
 
@@ -216,32 +216,32 @@ export function handleKeypress(e) {
     const matchValue = e.key;
     switch (matchValue) {
         case "w": {
-            fieldY.value = (parse_1(fieldY.value) + (parse_1(fieldZoom.value) * scale)).toString();
+            fieldY.value = (parse(fieldY.value) + (parse(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "s": {
-            fieldY.value = (parse_1(fieldY.value) - (parse_1(fieldZoom.value) * scale)).toString();
+            fieldY.value = (parse(fieldY.value) - (parse(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "a": {
-            fieldX.value = (parse_1(fieldX.value) - (parse_1(fieldZoom.value) * scale)).toString();
+            fieldX.value = (parse(fieldX.value) - (parse(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "d": {
-            fieldX.value = (parse_1(fieldX.value) + (parse_1(fieldZoom.value) * scale)).toString();
+            fieldX.value = (parse(fieldX.value) + (parse(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "q": {
-            fieldZoom.value = (parse_1(fieldZoom.value) + (parse_1(fieldZoom.value) * scale)).toString();
+            fieldZoom.value = (parse(fieldZoom.value) + (parse(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "e": {
-            fieldZoom.value = (parse_1(fieldZoom.value) - (parse_1(fieldZoom.value) * scale)).toString();
+            fieldZoom.value = (parse(fieldZoom.value) - (parse(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
@@ -255,7 +255,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 export function handleMouseDown(e) {
-    const zoom = parse_1(fieldZoom.value);
+    const zoom = parse(fieldZoom.value);
 }
 
 export function handleMouseUp(e) {

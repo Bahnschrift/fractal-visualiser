@@ -69,13 +69,6 @@ clear gl
 let shaderProgram = createShaderProgram gl vsMandel fsMandel
 
 let update () = 
-    let juliaPreset = int fieldJuliaPresets.value
-    if juliaPreset <> -1 then
-        console.log(juliaPresets.[juliaPreset])
-        let juliaPresetCoords = juliaPresets.[juliaPreset]
-        fieldJuliaX.value <- string <| fst juliaPresetCoords
-        fieldJuliaY.value <- string <| snd juliaPresetCoords
-
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
     let mutable y = float fieldY.value
@@ -153,7 +146,14 @@ fieldMandelbox.oninput <- fun _ ->
 fieldMandelboxScale.oninput <- fun _ -> update()
 fieldJuliaX.oninput <- fun _ -> update()
 fieldJuliaY.oninput <- fun _ -> update()
-fieldJuliaPresets.oninput <- fun _ -> update()
+fieldJuliaPresets.oninput <- fun _ -> 
+    let juliaPreset = int fieldJuliaPresets.value
+    if juliaPreset <> -1 then
+        console.log(juliaPresets.[juliaPreset])
+        let juliaPresetCoords = juliaPresets.[juliaPreset]
+        fieldJuliaX.value <- string <| fst juliaPresetCoords
+        fieldJuliaY.value <- string <| snd juliaPresetCoords
+    update()
 
 let handleKeypress (e: KeyboardEvent) =
     let scale = 0.1  // if e.shiftKey then 0.01 else 0.1 

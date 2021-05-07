@@ -1,9 +1,9 @@
 module Shaders
 
-open Fetch
-open Browser.Dom
 
-let vsMandel = """
+let glsl str = str
+
+let vsMandel = glsl """
     precision highp float;
     precision highp int;
 
@@ -15,8 +15,7 @@ let vsMandel = """
         vTextureCoord = aTextureCoord;
     }"""
 
-
-let fsMandel = """
+let fsMandel = glsl """
     precision highp float;
     precision highp int;
     
