@@ -1,14 +1,13 @@
 module App
 
-open System
 open Shaders
 open Cookies
 open WebGLHelper
 open Browser.Dom
 open Browser.Types
 
-let WIDTH = float <| 800
-let HEIGHT = float <| 450
+let WIDTH = float <| 1280
+let HEIGHT = float <| 720
 
 let juliaPresets = [|
     0.0, 0.8;
@@ -80,13 +79,10 @@ let update () =
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
     let mutable y = float fieldY.value
-    // 1: Mandelrot
-    // 2: Julia
-    // 3: Mandelbox
     let generator = 
-        if fieldMandelbrot.checked then 1 
-        elif fieldJulia.checked then 2 
-        elif fieldMandelbox.checked then 3 
+        if fieldMandelbrot.checked then 1  // 1: Mandelrot
+        elif fieldJulia.checked then 2  // 2: Julia
+        elif fieldMandelbox.checked then 3  // 3: Mandelbox
         else -1
     let mandelboxScale = float fieldMandelboxScale.value
     let juliaX = float fieldJuliaX.value

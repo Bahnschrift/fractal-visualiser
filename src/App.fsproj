@@ -16,4 +16,7 @@
         <PackageReference Include="Fable.Fetch" Version="2.2.0" />
         <Reference Include="System.IO" />
     </ItemGroup>
+    <PropertyGroup>
+        <OtherFlags>--nowarn:46</OtherFlags>
+    </PropertyGroup>
 </Project>

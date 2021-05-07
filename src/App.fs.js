@@ -7,9 +7,9 @@ import { parse } from "./.fable/fable-library.3.1.1/Int32.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Double.js";
 import { int32ToString } from "./.fable/fable-library.3.1.1/Util.js";
 
-export const WIDTH = 800;
+export const WIDTH = 1280;
 
-export const HEIGHT = 450;
+export const HEIGHT = 720;
 
 export const juliaPresets = [[0, 0.8], [0.37, 0.1], [0.355, 0.355], [-0.54, 0.54], [-0.4, -0.59], [0.34, -0.05], [0.355534, 0.337292]];
 
