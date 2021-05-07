@@ -46,7 +46,8 @@ let clear (gl: GL) =
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
 
-    gl.clear(float(int gl.COLOR_BUFFER_BIT ||| int gl.DEPTH_BUFFER_BIT))
+    gl.clear(gl.COLOR_BUFFER_BIT)
+    gl.clear(gl.DEPTH_BUFFER_BIT)
 
 
 let initBuffers (gl: GL) =

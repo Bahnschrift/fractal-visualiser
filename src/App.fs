@@ -35,6 +35,8 @@ let fieldJulia = getInputElement "julia"
 let fieldJuliaX = getInputElement "juliax"
 let fieldJuliaY = getInputElement "juliay"
 let fieldJuliaPresets = document.querySelector "#juliapresets" :?> HTMLSelectElement
+
+let buttonFullscreen = document.querySelector "#fullscreen" :?> HTMLButtonElement
 let buttonCentre = document.querySelector "#centre" :?> HTMLButtonElement
 let buttonReset = document.querySelector "#reset" :?> HTMLButtonElement
 
@@ -69,6 +71,16 @@ clear gl
 let shaderProgram = createShaderProgram gl vsMandel fsMandel
 
 let update () = 
+    let resizeCanvas(canvas: HTMLCanvasElement) = 
+        let displayWidth = canvas.clientWidth
+        let displayHeight = canvas.clientHeight
+        let needResize = 
+            canvas.width <> displayWidth || 
+            canvas.height <> displayHeight
+        if needResize then
+            canvas.width <- displayWidth
+            canvas.height <- displayHeight
+    console.log(canv.width, canv.height)
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
     let mutable y = float fieldY.value
@@ -106,6 +118,8 @@ let update () =
     let juliaYUniform = createUniformLocation gl shaderProgram "uJuliaY"
 
     let draw zoom x y (ratio: float) =
+        resizeCanvas canv
+        gl.viewport(0.0, 0.0, canv.width, canv.height)
         gl.useProgram(shaderProgram)
 
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
@@ -124,7 +138,7 @@ let update () =
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0., 4.)
 
-    draw zoom x y (WIDTH / HEIGHT)
+    draw zoom x y (canv.width / canv.height)
     gl.useProgram(shaderProgram)
 update()
 
@@ -155,7 +169,7 @@ fieldJuliaPresets.oninput <- fun _ ->
         fieldJuliaY.value <- string <| snd juliaPresetCoords
     update()
 
-let handleKeypress (e: KeyboardEvent) =
+document.onkeydown <- fun e ->
     let scale = 0.1  // if e.shiftKey then 0.01 else 0.1 
     match e.key with
     | "w" -> fieldY.value <- string <| float fieldY.value + float fieldZoom.value * scale; update()
@@ -165,15 +179,11 @@ let handleKeypress (e: KeyboardEvent) =
     | "q" -> fieldZoom.value <- string <| float fieldZoom.value + float fieldZoom.value * scale; update()
     | "e" -> fieldZoom.value <- string <| float fieldZoom.value - float fieldZoom.value * scale; update()
     | _ -> ()
-document.addEventListener("keydown", fun e -> handleKeypress (e :?> KeyboardEvent))
 
-let handleMouseDown (e: MouseEvent) = 
-    let zoom = float fieldZoom.value
-    ()
-let handleMouseUp (e: MouseEvent) = 
-    ()
-canv.addEventListener("mousedown", fun e -> handleMouseDown (e :?> MouseEvent))
-canv.addEventListener("mouseup", fun e -> handleMouseUp (e :?> MouseEvent))
+buttonFullscreen.onclick <- fun _ ->
+    clear gl
+    canv.requestFullscreen()
+    update()
 
 buttonCentre.onclick <- fun _ ->
     fieldX.value <- string <| 0
@@ -191,3 +201,11 @@ buttonReset.onclick <- fun _ ->
     divMandelbox.hidden <- true
     divJulia.hidden <- true
     update()
+
+document.onfullscreenchange <- fun _ ->
+    console.log("me")
+    if isNull document.fullscreenElement then
+        console.log("MEE")
+        canv.width <- WIDTH
+        canv.height <- HEIGHT
+        update()

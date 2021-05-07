@@ -43,6 +43,8 @@ export const fieldJuliaY = getInputElement("juliay");
 
 export const fieldJuliaPresets = document.querySelector("#juliapresets");
 
+export const buttonFullscreen = document.querySelector("#fullscreen");
+
 export const buttonCentre = document.querySelector("#centre");
 
 export const buttonReset = document.querySelector("#reset");
@@ -104,6 +106,16 @@ clear(gl);
 export const shaderProgram = createShaderProgram(gl, vsMandel, fsMandel);
 
 export function update() {
+    const resizeCanvas = (canvas) => {
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
+        const needResize = (canvas.width !== displayWidth) ? true : (canvas.height !== displayHeight);
+        if (needResize) {
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+        }
+    };
+    console.log(some(canv.width), canv.height);
     const zoom = parse(fieldZoom.value);
     let x = parse(fieldX.value);
     let y = parse(fieldY.value);
@@ -137,6 +149,8 @@ export function update() {
     const juliaXUniform = createUniformLocation(gl, shaderProgram, "uJuliaX");
     const juliaYUniform = createUniformLocation(gl, shaderProgram, "uJuliaY");
     const draw = (zoom_1, x_1, y_1, ratio) => {
+        resizeCanvas(canv);
+        gl.viewport(0, 0, canv.width, canv.height);
         gl.useProgram(shaderProgram);
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.vertexAttribPointer(vertexPositionAttr, 2, gl.FLOAT, false, 0, 0);
@@ -152,7 +166,7 @@ export function update() {
         gl.uniform1f(juliaYUniform, juliaY);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
-    draw(zoom, x, y, WIDTH / HEIGHT);
+    draw(zoom, x, y, canv.width / canv.height);
     gl.useProgram(shaderProgram);
 }
 
@@ -211,7 +225,7 @@ fieldJuliaPresets.oninput = ((_arg10) => {
     update();
 });
 
-export function handleKeypress(e) {
+document.onkeydown = ((e) => {
     const scale = 0.1;
     const matchValue = e.key;
     switch (matchValue) {
@@ -248,34 +262,21 @@ export function handleKeypress(e) {
         default: {
         }
     }
-}
-
-document.addEventListener("keydown", (e) => {
-    handleKeypress(e);
 });
 
-export function handleMouseDown(e) {
-    const zoom = parse(fieldZoom.value);
-}
-
-export function handleMouseUp(e) {
-}
-
-canv.addEventListener("mousedown", (e) => {
-    handleMouseDown(e);
+buttonFullscreen.onclick = ((_arg11) => {
+    clear(gl);
+    canv.requestFullscreen();
+    update();
 });
 
-canv.addEventListener("mouseup", (e) => {
-    handleMouseUp(e);
-});
-
-buttonCentre.onclick = ((_arg1) => {
+buttonCentre.onclick = ((_arg12) => {
     fieldX.value = int32ToString(0);
     fieldY.value = int32ToString(0);
     update();
 });
 
-buttonReset.onclick = ((_arg2) => {
+buttonReset.onclick = ((_arg13) => {
     fieldX.value = int32ToString(0);
     fieldY.value = int32ToString(0);
     fieldZoom.value = (2.5).toString();
@@ -286,5 +287,15 @@ buttonReset.onclick = ((_arg2) => {
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
+});
+
+document.onfullscreenchange = ((_arg14) => {
+    console.log(some("me"));
+    if (document.fullscreenElement == null) {
+        console.log(some("MEE"));
+        canv.width = WIDTH;
+        canv.height = HEIGHT;
+        update();
+    }
 });
 

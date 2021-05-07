@@ -25,7 +25,8 @@ export function clear(gl) {
     gl.clearDepth(1);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
-    gl.clear((~(~gl.COLOR_BUFFER_BIT)) | (~(~gl.DEPTH_BUFFER_BIT)));
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.DEPTH_BUFFER_BIT);
 }
 
 export function initBuffers(gl) {
