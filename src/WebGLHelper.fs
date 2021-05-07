@@ -4,20 +4,21 @@ open Fetch
 // open Fable.Core.JS
 open Fable.Core.JsInterop
 open Browser.Types
-
+open Browser.Dom
 
 type GL = WebGLRenderingContext
 
 let createShaderProgram (gl: GL) vsSource fsSource =
+    console.log("here")
     let vertexShader = gl.createShader(gl.VERTEX_SHADER)
     gl.shaderSource(vertexShader, vsSource)
     gl.compileShader(vertexShader)
-    // Fable.Core.JS.console.log("VERTEX SHADER LOG:", gl.getShaderInfoLog(vertexShader))
+    console.log("VERTEX SHADER LOG:", gl.getShaderInfoLog(vertexShader))
 
     let fragShader = gl.createShader(gl.FRAGMENT_SHADER)
     gl.shaderSource(fragShader, fsSource)
     gl.compileShader(fragShader)
-    // Fable.Core.JS.console.log("FRAGMENT SHADER LOG:", gl.getShaderInfoLog(fragShader))
+    console.log("FRAGMENT SHADER LOG:", gl.getShaderInfoLog(fragShader))
 
     let program = gl.createProgram()
     gl.attachShader(program, vertexShader)
@@ -39,7 +40,6 @@ let createBuffer (items: float[]) (gl: GL) =
 
     buffer
 
-
 let clear (gl: GL) =
     gl.clearColor(0., 0., 0., 0.)
     gl.clearDepth(1.)
@@ -48,7 +48,6 @@ let clear (gl: GL) =
 
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.clear(gl.DEPTH_BUFFER_BIT)
-
 
 let initBuffers (gl: GL) =
     let positions =
@@ -67,9 +66,7 @@ let initBuffers (gl: GL) =
                 0.0; 1.0;
                 1.0; 1.0
             |] gl
-    
     positions, textureCoords
-
 
 let createAttributeLocation (gl: GL) program name =
     let attributeLocation = gl.getAttribLocation(program, name)

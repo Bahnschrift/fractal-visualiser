@@ -50,17 +50,20 @@ let cookieJuliaY = findCookieValue "jy"
 
 let cookies = [|cookieX; cookieY; cookieZoom; cookieGenerator; cookieMandelboxScale; cookieJuliaX; cookieJuliaY|]
 if (Array.forall (fun (c: option<string>) -> not c.IsNone) cookies) then
-    fieldX.value <- cookieX.Value
-    fieldY.value <- cookieY.Value
-    fieldZoom.value <- cookieZoom.Value
-    match cookieGenerator.Value with
-    | "1" -> fieldMandelbrot.checked <- true
-    | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false;
-    | "3" -> fieldMandelbox.checked <- true; divMandelbox.hidden <- false;
+    try  // Prevents sneaky people from meddling with my cookies
+        fieldX.value <- cookieX.Value
+        fieldY.value <- cookieY.Value
+        fieldZoom.value <- cookieZoom.Value
+        match cookieGenerator.Value with
+        | "1" -> fieldMandelbrot.checked <- true
+        | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false;
+        | "3" -> fieldMandelbox.checked <- true; divMandelbox.hidden <- false;
+        | _ -> ()
+        fieldMandelboxScale.value <- cookieMandelboxScale.Value
+        fieldJuliaX.value <- cookieJuliaX.Value
+        fieldJuliaY.value <- cookieJuliaY.Value
+    with
     | _ -> ()
-    fieldMandelboxScale.value <- cookieMandelboxScale.Value
-    fieldJuliaX.value <- cookieJuliaX.Value
-    fieldJuliaY.value <- cookieJuliaY.Value
 
 let canv = document.querySelector "#canv" :?> HTMLCanvasElement
 canv.width <- WIDTH
@@ -98,7 +101,6 @@ let update () =
     document.cookie <- sprintf "mandelboxscale=%f" mandelboxScale
     document.cookie <- sprintf "jx=%f" juliaX
     document.cookie <- sprintf "jy=%f" juliaY
-
 
     fieldX.step <- 0.1 * zoom |> string
     fieldY.step <- 0.1 * zoom |> string
@@ -169,7 +171,7 @@ fieldJuliaPresets.oninput <- fun _ ->
 
 let mutable keysDown = Set.empty
 document.onkeydown <- fun e ->
-    let scale = 0.05
+    let scale = 0.075
     match e.key with
     | "w" | "s" | "a" | "d" | "q" | "e" -> keysDown <- keysDown.Add e.key
     | _ -> ()

@@ -68,31 +68,35 @@ export const cookieJuliaY = findCookieValue("jy");
 export const cookies = [cookieX, cookieY, cookieZoom, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY];
 
 if (cookies.every((c) => (!(c == null)))) {
-    fieldX.value = value_6(cookieX);
-    fieldY.value = value_6(cookieY);
-    fieldZoom.value = value_6(cookieZoom);
-    const matchValue = value_6(cookieGenerator);
-    switch (matchValue) {
-        case "1": {
-            fieldMandelbrot.checked = true;
-            break;
+    try {
+        fieldX.value = value_6(cookieX);
+        fieldY.value = value_6(cookieY);
+        fieldZoom.value = value_6(cookieZoom);
+        const matchValue = value_6(cookieGenerator);
+        switch (matchValue) {
+            case "1": {
+                fieldMandelbrot.checked = true;
+                break;
+            }
+            case "2": {
+                fieldJulia.checked = true;
+                divJulia.hidden = false;
+                break;
+            }
+            case "3": {
+                fieldMandelbox.checked = true;
+                divMandelbox.hidden = false;
+                break;
+            }
+            default: {
+            }
         }
-        case "2": {
-            fieldJulia.checked = true;
-            divJulia.hidden = false;
-            break;
-        }
-        case "3": {
-            fieldMandelbox.checked = true;
-            divMandelbox.hidden = false;
-            break;
-        }
-        default: {
-        }
+        fieldMandelboxScale.value = value_6(cookieMandelboxScale);
+        fieldJuliaX.value = value_6(cookieJuliaX);
+        fieldJuliaY.value = value_6(cookieJuliaY);
     }
-    fieldMandelboxScale.value = value_6(cookieMandelboxScale);
-    fieldJuliaX.value = value_6(cookieJuliaX);
-    fieldJuliaY.value = value_6(cookieJuliaY);
+    catch (matchValue_1) {
+    }
 }
 
 export const canv = document.querySelector("#canv");
@@ -230,7 +234,7 @@ export const keysDown = createAtom(empty({
 }));
 
 document.onkeydown = ((e) => {
-    const scale = 0.05;
+    const scale = 0.075;
     const matchValue = e.key;
     switch (matchValue) {
         case "w":
