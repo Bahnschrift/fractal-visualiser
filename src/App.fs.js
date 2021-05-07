@@ -1,11 +1,13 @@
 import { printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { findCookieValue } from "./Cookies.fs.js";
-import { some, value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
+import { value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
 import { parse } from "./.fable/fable-library.3.1.1/Double.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Int32.js";
-import { int32ToString } from "./.fable/fable-library.3.1.1/Util.js";
+import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-library.3.1.1/Util.js";
+import { FSharpSet__Remove, FSharpSet__Add, empty } from "./.fable/fable-library.3.1.1/Set.js";
+import { getEnumerator } from "./.fable/fable-library.3.1.1/Seq.js";
 
 export const WIDTH = 1280;
 
@@ -115,7 +117,6 @@ export function update() {
             canvas.height = displayHeight;
         }
     };
-    console.log(some(canv.width), canv.height);
     const zoom = parse(fieldZoom.value);
     let x = parse(fieldX.value);
     let y = parse(fieldY.value);
@@ -217,7 +218,6 @@ fieldJuliaY.oninput = ((_arg9) => {
 fieldJuliaPresets.oninput = ((_arg10) => {
     const juliaPreset = parse_1(fieldJuliaPresets.value, 511, false, 32) | 0;
     if (juliaPreset !== -1) {
-        console.log(some(juliaPresets[juliaPreset]));
         const juliaPresetCoords = juliaPresets[juliaPreset];
         fieldJuliaX.value = juliaPresetCoords[0].toString();
         fieldJuliaY.value = juliaPresetCoords[1].toString();
@@ -225,38 +225,81 @@ fieldJuliaPresets.oninput = ((_arg10) => {
     update();
 });
 
+export const keysDown = createAtom(empty({
+    Compare: comparePrimitives,
+}));
+
 document.onkeydown = ((e) => {
-    const scale = 0.1;
+    const scale = 0.05;
     const matchValue = e.key;
     switch (matchValue) {
-        case "w": {
-            fieldY.value = (parse(fieldY.value) + (parse(fieldZoom.value) * scale)).toString();
-            update();
-            break;
-        }
-        case "s": {
-            fieldY.value = (parse(fieldY.value) - (parse(fieldZoom.value) * scale)).toString();
-            update();
-            break;
-        }
-        case "a": {
-            fieldX.value = (parse(fieldX.value) - (parse(fieldZoom.value) * scale)).toString();
-            update();
-            break;
-        }
-        case "d": {
-            fieldX.value = (parse(fieldX.value) + (parse(fieldZoom.value) * scale)).toString();
-            update();
-            break;
-        }
-        case "q": {
-            fieldZoom.value = (parse(fieldZoom.value) + (parse(fieldZoom.value) * scale)).toString();
-            update();
-            break;
-        }
+        case "w":
+        case "s":
+        case "a":
+        case "d":
+        case "q":
         case "e": {
-            fieldZoom.value = (parse(fieldZoom.value) - (parse(fieldZoom.value) * scale)).toString();
-            update();
+            keysDown(FSharpSet__Add(keysDown(), e.key), true);
+            break;
+        }
+        default: {
+        }
+    }
+    const enumerator = getEnumerator(keysDown());
+    try {
+        while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
+            const key = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
+            switch (key) {
+                case "w": {
+                    fieldY.value = (parse(fieldY.value) + (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "s": {
+                    fieldY.value = (parse(fieldY.value) - (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "a": {
+                    fieldX.value = (parse(fieldX.value) - (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "d": {
+                    fieldX.value = (parse(fieldX.value) + (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "q": {
+                    fieldZoom.value = (parse(fieldZoom.value) + (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                case "e": {
+                    fieldZoom.value = (parse(fieldZoom.value) - (parse(fieldZoom.value) * scale)).toString();
+                    update();
+                    break;
+                }
+                default: {
+                }
+            }
+        }
+    }
+    finally {
+        enumerator.Dispose();
+    }
+});
+
+document.onkeyup = ((e) => {
+    const matchValue = e.key;
+    switch (matchValue) {
+        case "w":
+        case "s":
+        case "a":
+        case "d":
+        case "q":
+        case "e": {
+            keysDown(FSharpSet__Remove(keysDown(), e.key), true);
             break;
         }
         default: {
@@ -264,19 +307,19 @@ document.onkeydown = ((e) => {
     }
 });
 
-buttonFullscreen.onclick = ((_arg11) => {
+buttonFullscreen.onclick = ((_arg1) => {
     clear(gl);
     canv.requestFullscreen();
     update();
 });
 
-buttonCentre.onclick = ((_arg12) => {
+buttonCentre.onclick = ((_arg2) => {
     fieldX.value = int32ToString(0);
     fieldY.value = int32ToString(0);
     update();
 });
 
-buttonReset.onclick = ((_arg13) => {
+buttonReset.onclick = ((_arg3) => {
     fieldX.value = int32ToString(0);
     fieldY.value = int32ToString(0);
     fieldZoom.value = (2.5).toString();
@@ -289,10 +332,8 @@ buttonReset.onclick = ((_arg13) => {
     update();
 });
 
-document.onfullscreenchange = ((_arg14) => {
-    console.log(some("me"));
+document.onfullscreenchange = ((_arg4) => {
     if (document.fullscreenElement == null) {
-        console.log(some("MEE"));
         canv.width = WIDTH;
         canv.height = HEIGHT;
         update();

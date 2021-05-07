@@ -80,7 +80,6 @@ let update () =
         if needResize then
             canvas.width <- displayWidth
             canvas.height <- displayHeight
-    console.log(canv.width, canv.height)
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
     let mutable y = float fieldY.value
@@ -163,21 +162,29 @@ fieldJuliaY.oninput <- fun _ -> update()
 fieldJuliaPresets.oninput <- fun _ -> 
     let juliaPreset = int fieldJuliaPresets.value
     if juliaPreset <> -1 then
-        console.log(juliaPresets.[juliaPreset])
         let juliaPresetCoords = juliaPresets.[juliaPreset]
         fieldJuliaX.value <- string <| fst juliaPresetCoords
         fieldJuliaY.value <- string <| snd juliaPresetCoords
     update()
 
+let mutable keysDown = Set.empty
 document.onkeydown <- fun e ->
-    let scale = 0.1  // if e.shiftKey then 0.01 else 0.1 
+    let scale = 0.05
     match e.key with
-    | "w" -> fieldY.value <- string <| float fieldY.value + float fieldZoom.value * scale; update()
-    | "s" -> fieldY.value <- string <| float fieldY.value - float fieldZoom.value * scale; update()
-    | "a" -> fieldX.value <- string <| float fieldX.value - float fieldZoom.value * scale; update()
-    | "d" -> fieldX.value <- string <| float fieldX.value + float fieldZoom.value * scale; update()
-    | "q" -> fieldZoom.value <- string <| float fieldZoom.value + float fieldZoom.value * scale; update()
-    | "e" -> fieldZoom.value <- string <| float fieldZoom.value - float fieldZoom.value * scale; update()
+    | "w" | "s" | "a" | "d" | "q" | "e" -> keysDown <- keysDown.Add e.key
+    | _ -> ()
+    for key in keysDown do
+        match key with
+        | "w" -> fieldY.value <- string <| float fieldY.value + float fieldZoom.value * scale; update()
+        | "s" -> fieldY.value <- string <| float fieldY.value - float fieldZoom.value * scale; update()
+        | "a" -> fieldX.value <- string <| float fieldX.value - float fieldZoom.value * scale; update()
+        | "d" -> fieldX.value <- string <| float fieldX.value + float fieldZoom.value * scale; update()
+        | "q" -> fieldZoom.value <- string <| float fieldZoom.value + float fieldZoom.value * scale; update()
+        | "e" -> fieldZoom.value <- string <| float fieldZoom.value - float fieldZoom.value * scale; update()
+        | _ -> ()
+document.onkeyup <- fun e ->
+    match e.key with
+    | "w" | "s" | "a" | "d" | "q" | "e" -> keysDown <- keysDown.Remove e.key
     | _ -> ()
 
 buttonFullscreen.onclick <- fun _ ->
@@ -203,9 +210,7 @@ buttonReset.onclick <- fun _ ->
     update()
 
 document.onfullscreenchange <- fun _ ->
-    console.log("me")
     if isNull document.fullscreenElement then
-        console.log("MEE")
         canv.width <- WIDTH
         canv.height <- HEIGHT
         update()
