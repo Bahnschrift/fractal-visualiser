@@ -16,6 +16,8 @@ let juliaPresets = [|
     -0.54, 0.54;
     -0.4, -0.59;
     0.34, -0.05;
+    -0.687, 0.312;
+    -0.673, 0.312;
     0.355534, 0.337292
 |]
 
@@ -217,6 +219,7 @@ buttonReset.onclick <- fun _ ->
     fieldMandelboxScale.value <- string <| 3
     fieldJuliaX.value <- string <| 0
     fieldJuliaY.value <- string <| 0
+    fieldJuliaPresets.value <- string <| -1
     fieldMandelbrot.checked <- true
     divMandelbox.hidden <- true
     divJulia.hidden <- true

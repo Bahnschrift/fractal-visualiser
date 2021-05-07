@@ -9,16 +9,19 @@ open Browser.Dom
 type GL = WebGLRenderingContext
 
 let createShaderProgram (gl: GL) vsSource fsSource =
-    console.log("here")
     let vertexShader = gl.createShader(gl.VERTEX_SHADER)
     gl.shaderSource(vertexShader, vsSource)
     gl.compileShader(vertexShader)
-    console.log("VERTEX SHADER LOG:", gl.getShaderInfoLog(vertexShader))
+    if gl.getShaderInfoLog(vertexShader) <> "" then
+        window.alert(sprintf "VERTEX SHADER LOG: %s" (gl.getShaderInfoLog(vertexShader)))
+        console.error("VERTEX SHADER LOG:", gl.getShaderInfoLog(vertexShader))
 
     let fragShader = gl.createShader(gl.FRAGMENT_SHADER)
     gl.shaderSource(fragShader, fsSource)
     gl.compileShader(fragShader)
-    console.log("FRAGMENT SHADER LOG:", gl.getShaderInfoLog(fragShader))
+    if gl.getShaderInfoLog(fragShader) <> "" then
+        window.alert(sprintf "FRAGMENT SHADER LOG: %s" (gl.getShaderInfoLog(fragShader)))
+        console.error("FRAGMENT SHADER LOG:", gl.getShaderInfoLog(fragShader))
 
     let program = gl.createProgram()
     gl.attachShader(program, vertexShader)

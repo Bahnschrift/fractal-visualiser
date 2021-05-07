@@ -1,15 +1,22 @@
+import { printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { some } from "./.fable/fable-library.3.1.1/Option.js";
 
 export function createShaderProgram(gl, vsSource, fsSource) {
-    console.log(some("here"));
+    let arg10, arg10_1;
     const vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertexShader, vsSource);
     gl.compileShader(vertexShader);
-    console.log(some("VERTEX SHADER LOG:"), gl.getShaderInfoLog(vertexShader));
+    if (gl.getShaderInfoLog(vertexShader) !== "") {
+        window.alert(some((arg10 = gl.getShaderInfoLog(vertexShader), toText(printf("VERTEX SHADER LOG: %s"))(arg10))));
+        console.error(some("VERTEX SHADER LOG:"), gl.getShaderInfoLog(vertexShader));
+    }
     const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragShader, fsSource);
     gl.compileShader(fragShader);
-    console.log(some("FRAGMENT SHADER LOG:"), gl.getShaderInfoLog(fragShader));
+    if (gl.getShaderInfoLog(fragShader) !== "") {
+        window.alert(some((arg10_1 = gl.getShaderInfoLog(fragShader), toText(printf("FRAGMENT SHADER LOG: %s"))(arg10_1))));
+        console.error(some("FRAGMENT SHADER LOG:"), gl.getShaderInfoLog(fragShader));
+    }
     const program = gl.createProgram();
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragShader);

@@ -1,6 +1,6 @@
 import { printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { findCookieValue } from "./Cookies.fs.js";
-import { value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
+import { value as value_7 } from "./.fable/fable-library.3.1.1/Option.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
 import { parse } from "./.fable/fable-library.3.1.1/Double.js";
@@ -13,7 +13,7 @@ export const WIDTH = 1280;
 
 export const HEIGHT = 720;
 
-export const juliaPresets = [[0, 0.8], [0.37, 0.1], [0.355, 0.355], [-0.54, 0.54], [-0.4, -0.59], [0.34, -0.05], [0.355534, 0.337292]];
+export const juliaPresets = [[0, 0.8], [0.37, 0.1], [0.355, 0.355], [-0.54, 0.54], [-0.4, -0.59], [0.34, -0.05], [-0.687, 0.312], [-0.673, 0.312], [0.355534, 0.337292]];
 
 export function getInputElement(id) {
     return document.querySelector(toText(printf("#%s"))(id));
@@ -69,10 +69,10 @@ export const cookies = [cookieX, cookieY, cookieZoom, cookieGenerator, cookieMan
 
 if (cookies.every((c) => (!(c == null)))) {
     try {
-        fieldX.value = value_6(cookieX);
-        fieldY.value = value_6(cookieY);
-        fieldZoom.value = value_6(cookieZoom);
-        const matchValue = value_6(cookieGenerator);
+        fieldX.value = value_7(cookieX);
+        fieldY.value = value_7(cookieY);
+        fieldZoom.value = value_7(cookieZoom);
+        const matchValue = value_7(cookieGenerator);
         switch (matchValue) {
             case "1": {
                 fieldMandelbrot.checked = true;
@@ -91,9 +91,9 @@ if (cookies.every((c) => (!(c == null)))) {
             default: {
             }
         }
-        fieldMandelboxScale.value = value_6(cookieMandelboxScale);
-        fieldJuliaX.value = value_6(cookieJuliaX);
-        fieldJuliaY.value = value_6(cookieJuliaY);
+        fieldMandelboxScale.value = value_7(cookieMandelboxScale);
+        fieldJuliaX.value = value_7(cookieJuliaX);
+        fieldJuliaY.value = value_7(cookieJuliaY);
     }
     catch (matchValue_1) {
     }
@@ -374,6 +374,7 @@ buttonReset.onclick = ((_arg3) => {
     fieldMandelboxScale.value = int32ToString(3);
     fieldJuliaX.value = int32ToString(0);
     fieldJuliaY.value = int32ToString(0);
+    fieldJuliaPresets.value = int32ToString(-1);
     fieldMandelbrot.checked = true;
     divMandelbox.hidden = true;
     divJulia.hidden = true;
