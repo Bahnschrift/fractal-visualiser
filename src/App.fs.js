@@ -1,39 +1,51 @@
+import { printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { findCookieValue } from "./Cookies.fs.js";
-import { value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
+import { some, value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
-import { parse } from "./.fable/fable-library.3.1.1/Double.js";
-import { printf, toText } from "./.fable/fable-library.3.1.1/String.js";
+import { parse } from "./.fable/fable-library.3.1.1/Int32.js";
+import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Double.js";
+import { int32ToString } from "./.fable/fable-library.3.1.1/Util.js";
 
 export const WIDTH = 800;
 
 export const HEIGHT = 450;
 
+export const juliaPresets = [[0, 0.8], [0.37, 0.1], [0.355, 0.355], [-0.54, 0.54], [-0.4, -0.59], [0.34, -0.05], [0.355534, 0.337292]];
+
+export function getInputElement(id) {
+    return document.querySelector(toText(printf("#%s"))(id));
+}
+
 export const divMandelbox = document.querySelector("#settingsmandelbox");
 
 export const divJulia = document.querySelector("#settingsjulia");
 
-export const fieldZoom = document.querySelector("#zoom");
+export const fieldZoom = getInputElement("zoom");
 
-export const fieldX = document.querySelector("#x");
+export const fieldX = getInputElement("x");
 
-export const fieldY = document.querySelector("#y");
+export const fieldY = getInputElement("y");
 
-export const fieldFractal = document.querySelector(".fractal");
+export const fieldFractal = getInputElement("fractal");
+
+export const fieldMandelbrot = getInputElement("mandelbrot");
+
+export const fieldMandelbox = getInputElement("mandelbox");
+
+export const fieldMandelboxScale = getInputElement("mandelboxscale");
+
+export const fieldJulia = getInputElement("julia");
+
+export const fieldJuliaX = getInputElement("juliax");
+
+export const fieldJuliaY = getInputElement("juliay");
+
+export const fieldJuliaPresets = document.querySelector("#juliapresets");
+
+export const buttonCentre = document.querySelector("#centre");
 
 export const buttonReset = document.querySelector("#reset");
-
-export const fieldMandelbrot = document.querySelector("#mandelbrot");
-
-export const fieldMandelbox = document.querySelector("#mandelbox");
-
-export const fieldMandelboxScale = document.querySelector("#mandelboxscale");
-
-export const fieldJulia = document.querySelector("#julia");
-
-export const fieldJuliaX = document.querySelector("#juliax");
-
-export const fieldJuliaY = document.querySelector("#juliay");
 
 export const cookieX = findCookieValue("x");
 
@@ -79,7 +91,7 @@ if (cookies.every((c) => (!(c == null)))) {
     fieldJuliaY.value = value_6(cookieJuliaY);
 }
 
-export const canv = document.querySelector(".canv");
+export const canv = document.querySelector("#canv");
 
 canv.width = WIDTH;
 
@@ -92,16 +104,25 @@ clear(gl);
 export const shaderProgram = createShaderProgram(gl, vsMandel, fsMandel);
 
 export function update() {
-    const zoom = parse(fieldZoom.value);
-    const x = parse(fieldX.value);
-    const y = parse(fieldY.value);
+    const juliaPreset = parse(fieldJuliaPresets.value, 511, false, 32) | 0;
+    if (juliaPreset !== -1) {
+        console.log(some(juliaPresets[juliaPreset]));
+        const juliaPresetCoords = juliaPresets[juliaPreset];
+        fieldJuliaX.value = juliaPresetCoords[0].toString();
+        fieldJuliaY.value = juliaPresetCoords[1].toString();
+    }
+    const zoom = parse_1(fieldZoom.value);
+    let x = parse_1(fieldX.value);
+    let y = parse_1(fieldY.value);
     const generator = (fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldMandelbox.checked ? 3 : -1))) | 0;
-    const mandelboxScale = parse(fieldMandelboxScale.value);
-    const juliaX = parse(fieldJuliaX.value);
-    const juliaY = parse(fieldJuliaY.value);
+    const mandelboxScale = parse_1(fieldMandelboxScale.value);
+    const juliaX = parse_1(fieldJuliaX.value);
+    const juliaY = parse_1(fieldJuliaY.value);
     document.cookie = toText(printf("zoom=%f;"))(zoom);
-    document.cookie = toText(printf("x=%f;"))(x);
-    document.cookie = toText(printf("y=%f;"))(y);
+    const arg10_1 = x;
+    document.cookie = toText(printf("x=%f;"))(arg10_1);
+    const arg10_2 = y;
+    document.cookie = toText(printf("y=%f;"))(arg10_2);
     document.cookie = toText(printf("generator=%i"))(generator);
     document.cookie = toText(printf("mandelboxscale=%f"))(mandelboxScale);
     document.cookie = toText(printf("jx=%f"))(juliaX);
@@ -186,37 +207,41 @@ fieldJuliaY.oninput = ((_arg9) => {
     update();
 });
 
+fieldJuliaPresets.oninput = ((_arg10) => {
+    update();
+});
+
 export function handleKeypress(e) {
     const scale = 0.1;
     const matchValue = e.key;
     switch (matchValue) {
         case "w": {
-            fieldY.value = (parse(fieldY.value) + (parse(fieldZoom.value) * scale)).toString();
+            fieldY.value = (parse_1(fieldY.value) + (parse_1(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "s": {
-            fieldY.value = (parse(fieldY.value) - (parse(fieldZoom.value) * scale)).toString();
+            fieldY.value = (parse_1(fieldY.value) - (parse_1(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "a": {
-            fieldX.value = (parse(fieldX.value) - (parse(fieldZoom.value) * scale)).toString();
+            fieldX.value = (parse_1(fieldX.value) - (parse_1(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "d": {
-            fieldX.value = (parse(fieldX.value) + (parse(fieldZoom.value) * scale)).toString();
+            fieldX.value = (parse_1(fieldX.value) + (parse_1(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "q": {
-            fieldZoom.value = (parse(fieldZoom.value) + (parse(fieldZoom.value) * scale)).toString();
+            fieldZoom.value = (parse_1(fieldZoom.value) + (parse_1(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
         case "e": {
-            fieldZoom.value = (parse(fieldZoom.value) - (parse(fieldZoom.value) * scale)).toString();
+            fieldZoom.value = (parse_1(fieldZoom.value) - (parse_1(fieldZoom.value) * scale)).toString();
             update();
             break;
         }
@@ -230,7 +255,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 export function handleMouseDown(e) {
-    const zoom = parse(fieldZoom.value);
+    const zoom = parse_1(fieldZoom.value);
 }
 
 export function handleMouseUp(e) {
@@ -244,10 +269,19 @@ canv.addEventListener("mouseup", (e) => {
     handleMouseUp(e);
 });
 
-buttonReset.onclick = ((_arg1) => {
-    fieldX.value = (-0.75).toString();
-    fieldY.value = (0).toString();
+buttonCentre.onclick = ((_arg1) => {
+    fieldX.value = int32ToString(0);
+    fieldY.value = int32ToString(0);
+    update();
+});
+
+buttonReset.onclick = ((_arg2) => {
+    fieldX.value = int32ToString(0);
+    fieldY.value = int32ToString(0);
     fieldZoom.value = (2.5).toString();
+    fieldMandelboxScale.value = int32ToString(3);
+    fieldJuliaX.value = int32ToString(0);
+    fieldJuliaY.value = int32ToString(0);
     fieldMandelbrot.checked = true;
     divMandelbox.hidden = true;
     divJulia.hidden = true;

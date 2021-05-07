@@ -21,7 +21,7 @@ export function createBuffer(items, gl) {
 }
 
 export function clear(gl) {
-    gl.clearColor(0, 0, 0, 1);
+    gl.clearColor(0, 0, 0, 0);
     gl.clearDepth(1);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
-        <title>WebGL</title>
+        <title>Fractal Visualiser</title>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
@@ -10,49 +10,63 @@
         <link rel="stylesheet" href="index.css"/>
     </head>
     <body>
-        <h1>Fractal Visualiser</h1>
-        <form id="data">
-            <div class="container-fluid" id="settings">
-                <div class="row align-items-start">
-                    <div class="col-1 col-sm-2" id="settingsfractal">
-                        <h3>Fractal</h3>
-                        <input type="radio" class="fractal" id="mandelbrot" name="fractal" value="mandelbrot" checked="true">
-                        <label for="mandelbrot" class="fractal">Mandelbrot Set</label>
-                        <br>
-                        <input type="radio" class="fractal" id="julia" name="fractal" value="julia" checked="true">
-                        <label for="julia" class="fractal">Julia Set</label>
-                        <br>
-                        <input type="radio" class="fractal" id="mandelbox" name="fractal" value="mandelbox">
-                        <label for="mandelbox" class="fractal">Mandelbox</label>
-                        
-                    </div>
-                    <div class="col-2" id="settingsposition">
-                        <h3>Position</h3>
-                        <label for="x">X:</label>
-                        <input type="number" class="input-group-text" id="x" name="x" value="-0.75" min="-2" max="2" step="0.1">
-                        <label for="y">Y:</label>
-                        <input type="number" class="input-group-text" id="y" name="y" value="0.0" min="-1" max="1" step="0.1">
-                        <label for="zoom">Zoom:</label>
-                        <input type="number" class="input-group-text" id="zoom" name="zoom" value="2.5" min="0" max="5" step="0.1">
-                    </div>
-                    <div class="col-2" id="settingsjulia" hidden>
-                        <h3>Julia Set</h3>
-                        <label for="juliax">CX:</label>
-                        <input type="number" class="input-group-text" id="juliax" name="jualiax" value="0" min="-2" max="2" step="0.1">
-                        <label for="juliay">CX:</label>
-                        <input type="number" class="input-group-text" id="juliay" name="jualiay" value="0" min="-2" max="2" step="0.1">
-                    </div>
-                    <div class="col-2" id="settingsmandelbox" hidden>
-                        <h3>Mandelbox</h3>
-                        <label for="mandelboxscale">Scale:</label>
-                        <input type="number" class="input-group-text" id="mandelboxscale" name="mandelboxscale" value="3" min="-5" max="5" step="1">
-                    </div>
+        <div class="container-fluid" id="header">
+            <h1>Fractal Visualiser</h1>
+        </div>
+        <div class="container-fluid" id="settings">
+            <div class="row align-items-start">
+                <div class="col-2" id="settingsfractal">
+                    <h3>Fractal</h3>
+                    <input type="radio" class="form-check-input" id="mandelbrot" name="fractal" value="mandelbrot" checked="true">
+                    <label for="mandelbrot" class="form-check-label">Mandelbrot Set</label>
+                    <br>
+                    <input type="radio" class="form-check-input" id="julia" name="fractal" value="julia">
+                    <label for="julia" class="form-check-label">Julia Set</label>
+                    <br>
+                    <input type="radio" class="form-check-input" id="mandelbox" name="fractal" value="mandelbox">
+                    <label for="mandelbox" class="form-check-label">Mandelbox</label>
                 </div>
-                <button type="button" class="btn btn-outline-primary" id="reset">Reset</button>
+                <div class="col-2" id="settingsposition">
+                    <h3>Position</h3>
+                    <label for="x">X:</label>
+                    <input type="number" class="input-group-text" id="x" name="x" value="0" min="-2" max="2" step="0.1">
+                    <label for="y">Y:</label>
+                    <input type="number" class="input-group-text" id="y" name="y" value="0.0" min="-1" max="1" step="0.1">
+                    <label for="zoom">Zoom:</label>
+                    <input type="number" class="input-group-text" id="zoom" name="zoom" value="2.5" min="0" max="5" step="0.1">
+                </div>
+                <div class="col-2" id="settingsjulia" hidden>
+                    <h3>Julia Set</h3>
+                    <label for="juliapresets">Presets:</label>
+                    <br>
+                    <select name="juliapresets" class="form-select" id="juliapresets">
+                        <option value="-1" selected>Choose...</option>
+                        <option value="0">0 + 0.8i</option>
+                        <option value="1">0.37 + 0.1i</option>
+                        <option value="2">0.355 + 0.355i</option>
+                        <option value="3">-0.54 + 0.54i</option>
+                        <option value="4">-0.4 - 0.59i</option>
+                        <option value="5">0.34 - 0.05i</option>
+                        <option value="6">0.355534 - 0.337292i</option>
+                    </select>
+                    <label for="juliax">Real:</label>
+                    <input type="number" class="input-group-text" id="juliax" name="jualiax" value="0" min="-2" max="2" step="0.05">
+                    <label for="juliay">Imaginary:</label>
+                    <input type="number" class="input-group-text" id="juliay" name="jualiay" value="0" min="-2" max="2" step="0.05">
+                </div>
+                <div class="col-2" id="settingsmandelbox" hidden>
+                    <h3>Mandelbox</h3>
+                    <label for="mandelboxscale">Scale:</label>
+                    <input type="number" class="input-group-text" id="mandelboxscale" name="mandelboxscale" value="3" min="-5" max="5" step="1">
+                </div>
             </div>
-        </form>
+            <button type="button" class="btn btn-outline-primary" id="centre">Centre</button>
+            <button type="button" class="btn btn-outline-primary" id="reset">Reset</button>
+        </div>
         <br>
-        <canvas class="canv" width="400" height="400"></canvas>
+        <div class="container-fluid" id="output">
+            <canvas class="border border-dark" id="canv" width="400" height="400"></canvas>
+        </div>
     </body>
     <script src="bundle.js"></script>
 </html>
