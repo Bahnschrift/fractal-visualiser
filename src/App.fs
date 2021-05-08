@@ -1,13 +1,14 @@
 module App
 
+open System
 open Shaders
 open Cookies
 open WebGLHelper
 open Browser.Dom
 open Browser.Types
 
-let WIDTH = float <| 1280
-let HEIGHT = float <| 720
+let WIDTH = float 1280
+let HEIGHT = float 720
 
 let juliaPresets = [|
     0.0, 0.8;
@@ -21,11 +22,12 @@ let juliaPresets = [|
     0.355534, 0.337292
 |]
 
+
+let getDivElement id = sprintf "#%s" id |> document.querySelector :?> HTMLDivElement
+let divMandelbox = getDivElement "settingsmandelbox"
+let divJulia = getDivElement "settingsjulia"
+
 let getInputElement id = sprintf "#%s" id |> document.querySelector :?> HTMLInputElement
-
-let divMandelbox = document.querySelector "#settingsmandelbox" :?> HTMLDivElement
-let divJulia = document.querySelector "#settingsjulia" :?> HTMLDivElement
-
 let fieldZoom = getInputElement "zoom"
 let fieldX = getInputElement "x"
 let fieldY = getInputElement "y"
@@ -38,9 +40,11 @@ let fieldJuliaX = getInputElement "juliax"
 let fieldJuliaY = getInputElement "juliay"
 let fieldJuliaPresets = document.querySelector "#juliapresets" :?> HTMLSelectElement
 
-let buttonFullscreen = document.querySelector "#fullscreen" :?> HTMLButtonElement
-let buttonCentre = document.querySelector "#centre" :?> HTMLButtonElement
-let buttonReset = document.querySelector "#reset" :?> HTMLButtonElement
+let getButtonElement id = sprintf "#%s" id |> document.querySelector :?> HTMLButtonElement
+let buttonFullscreen = getButtonElement "fullscreen"
+let buttonCentre = getButtonElement "centre"
+let buttonReset = getButtonElement "reset"
+let buttonSaveImage = getButtonElement "saveimage"
 
 let cookieX = findCookieValue "x"
 let cookieY = findCookieValue "y"
@@ -75,7 +79,7 @@ let gl = canv.getContext "webgl" :?> GL
 clear gl
 let shaderProgram = createShaderProgram gl vsMandel fsMandel
 
-let update () = 
+let update() = 
     let resizeCanvas(canvas: HTMLCanvasElement) = 
         let displayWidth = canvas.clientWidth
         let displayHeight = canvas.clientHeight
@@ -85,8 +89,8 @@ let update () =
         if needResize then
             // canvas.width <- displayWidth
             // canvas.height <- displayHeight
-            canv.width <- window.innerWidth * window.devicePixelRatio
-            canv.height <- window.innerHeight * window.devicePixelRatio
+            canvas.width <- window.innerWidth * window.devicePixelRatio
+            canvas.height <- window.innerHeight * window.devicePixelRatio
     
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
@@ -124,8 +128,8 @@ let update () =
     let juliaYUniform = createUniformLocation gl shaderProgram "uJuliaY"
 
     let draw zoom x y (ratio: float) =
-        resizeCanvas canv
-        gl.viewport(0.0, 0.0, canv.width, canv.height)
+        resizeCanvas gl.canvas
+        gl.viewport(0.0, 0.0, gl.canvas.width, gl.canvas.height)
         gl.useProgram(shaderProgram)
 
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
@@ -144,7 +148,7 @@ let update () =
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0., 4.)
 
-    draw zoom x y (canv.width / canv.height)
+    draw zoom x y (gl.canvas.width / gl.canvas.height)
     gl.useProgram(shaderProgram)
 update()
 
@@ -206,27 +210,42 @@ document.onkeyup <- fun e ->
         | _ -> ()
 
 buttonFullscreen.onclick <- fun _ ->
-    clear gl
     canv.requestFullscreen()
-    // update()
 
 buttonCentre.onclick <- fun _ ->
-    fieldX.value <- string <| 0
-    fieldY.value <- string <| 0
+    fieldX.value <- string 0
+    fieldY.value <- string 0
     update()
 
 buttonReset.onclick <- fun _ ->
-    fieldX.value <- string <| 0
-    fieldY.value <- string <| 0
-    fieldZoom.value <- string <| 2.5
-    fieldMandelboxScale.value <- string <| 3
-    fieldJuliaX.value <- string <| 0
-    fieldJuliaY.value <- string <| 0
-    fieldJuliaPresets.value <- string <| -1
+    fieldX.value <- string 0
+    fieldY.value <- string 0
+    fieldZoom.value <- string 2.5
+    fieldMandelboxScale.value <- string 3
+    fieldJuliaX.value <- string 0
+    fieldJuliaY.value <- string 0
+    fieldJuliaPresets.value <- string -1
     fieldMandelbrot.checked <- true
     divMandelbox.hidden <- true
     divJulia.hidden <- true
     update()
+
+buttonSaveImage.onclick <- fun _ ->
+    let saveResWidth = window.prompt("Save resolution width:")
+    if not (isNull saveResWidth) then
+        let saveResHeight = window.prompt("Save resolution height:")
+        if not (isNull saveResHeight) then
+            if Seq.forall Char.IsDigit saveResHeight && Seq.forall Char.IsDigit saveResWidth then
+                canv.width <- float saveResWidth
+                canv.height <- float saveResHeight
+                update()
+                update()
+                let link = document.querySelector "#link" :?> HTMLLinkElement
+                link.setAttribute("download", "fractal.png")
+                link.setAttribute("href", canv.toDataURL("png").Replace("image/png", "image/octet-stream"))
+                link.click()
+                canv.width <- float WIDTH
+                canv.height <- float HEIGHT
 
 document.onfullscreenchange <- fun _ ->
     if isNull document.fullscreenElement then

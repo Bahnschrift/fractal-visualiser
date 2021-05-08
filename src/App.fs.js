@@ -1,13 +1,14 @@
-import { printf, toText } from "./.fable/fable-library.3.1.1/String.js";
+import { replace, printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { findCookieValue } from "./Cookies.fs.js";
-import { value as value_7 } from "./.fable/fable-library.3.1.1/Option.js";
+import { value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
 import { parse } from "./.fable/fable-library.3.1.1/Double.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Int32.js";
 import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-library.3.1.1/Util.js";
 import { FSharpSet__Remove, FSharpSet__Add, empty } from "./.fable/fable-library.3.1.1/Set.js";
-import { getEnumerator } from "./.fable/fable-library.3.1.1/Seq.js";
+import { forAll, getEnumerator } from "./.fable/fable-library.3.1.1/Seq.js";
+import { isDigit } from "./.fable/fable-library.3.1.1/Char.js";
 
 export const WIDTH = 1280;
 
@@ -15,13 +16,17 @@ export const HEIGHT = 720;
 
 export const juliaPresets = [[0, 0.8], [0.37, 0.1], [0.355, 0.355], [-0.54, 0.54], [-0.4, -0.59], [0.34, -0.05], [-0.687, 0.312], [-0.673, 0.312], [0.355534, 0.337292]];
 
-export function getInputElement(id) {
+export function getDivElement(id) {
     return document.querySelector(toText(printf("#%s"))(id));
 }
 
-export const divMandelbox = document.querySelector("#settingsmandelbox");
+export const divMandelbox = getDivElement("settingsmandelbox");
 
-export const divJulia = document.querySelector("#settingsjulia");
+export const divJulia = getDivElement("settingsjulia");
+
+export function getInputElement(id) {
+    return document.querySelector(toText(printf("#%s"))(id));
+}
 
 export const fieldZoom = getInputElement("zoom");
 
@@ -45,11 +50,17 @@ export const fieldJuliaY = getInputElement("juliay");
 
 export const fieldJuliaPresets = document.querySelector("#juliapresets");
 
-export const buttonFullscreen = document.querySelector("#fullscreen");
+export function getButtonElement(id) {
+    return document.querySelector(toText(printf("#%s"))(id));
+}
 
-export const buttonCentre = document.querySelector("#centre");
+export const buttonFullscreen = getButtonElement("fullscreen");
 
-export const buttonReset = document.querySelector("#reset");
+export const buttonCentre = getButtonElement("centre");
+
+export const buttonReset = getButtonElement("reset");
+
+export const buttonSaveImage = getButtonElement("saveimage");
 
 export const cookieX = findCookieValue("x");
 
@@ -69,10 +80,10 @@ export const cookies = [cookieX, cookieY, cookieZoom, cookieGenerator, cookieMan
 
 if (cookies.every((c) => (!(c == null)))) {
     try {
-        fieldX.value = value_7(cookieX);
-        fieldY.value = value_7(cookieY);
-        fieldZoom.value = value_7(cookieZoom);
-        const matchValue = value_7(cookieGenerator);
+        fieldX.value = value_6(cookieX);
+        fieldY.value = value_6(cookieY);
+        fieldZoom.value = value_6(cookieZoom);
+        const matchValue = value_6(cookieGenerator);
         switch (matchValue) {
             case "1": {
                 fieldMandelbrot.checked = true;
@@ -91,9 +102,9 @@ if (cookies.every((c) => (!(c == null)))) {
             default: {
             }
         }
-        fieldMandelboxScale.value = value_7(cookieMandelboxScale);
-        fieldJuliaX.value = value_7(cookieJuliaX);
-        fieldJuliaY.value = value_7(cookieJuliaY);
+        fieldMandelboxScale.value = value_6(cookieMandelboxScale);
+        fieldJuliaX.value = value_6(cookieJuliaX);
+        fieldJuliaY.value = value_6(cookieJuliaY);
     }
     catch (matchValue_1) {
     }
@@ -117,8 +128,8 @@ export function update() {
         const displayHeight = canvas.clientHeight;
         const needResize = (canvas.width !== displayWidth) ? true : (canvas.height !== displayHeight);
         if (needResize) {
-            canv.width = (window.innerWidth * window.devicePixelRatio);
-            canv.height = (window.innerHeight * window.devicePixelRatio);
+            canvas.width = (window.innerWidth * window.devicePixelRatio);
+            canvas.height = (window.innerHeight * window.devicePixelRatio);
         }
     };
     const zoom = parse(fieldZoom.value);
@@ -154,8 +165,8 @@ export function update() {
     const juliaXUniform = createUniformLocation(gl, shaderProgram, "uJuliaX");
     const juliaYUniform = createUniformLocation(gl, shaderProgram, "uJuliaY");
     const draw = (zoom_1, x_1, y_1, ratio) => {
-        resizeCanvas(canv);
-        gl.viewport(0, 0, canv.width, canv.height);
+        resizeCanvas(gl.canvas);
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         gl.useProgram(shaderProgram);
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.vertexAttribPointer(vertexPositionAttr, 2, gl.FLOAT, false, 0, 0);
@@ -171,7 +182,7 @@ export function update() {
         gl.uniform1f(juliaYUniform, juliaY);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
-    draw(zoom, x, y, canv.width / canv.height);
+    draw(zoom, x, y, gl.canvas.width / gl.canvas.height);
     gl.useProgram(shaderProgram);
 }
 
@@ -356,7 +367,6 @@ document.onkeyup = ((e) => {
 });
 
 buttonFullscreen.onclick = ((_arg1) => {
-    clear(gl);
     canv.requestFullscreen();
 });
 
@@ -380,7 +390,28 @@ buttonReset.onclick = ((_arg3) => {
     update();
 });
 
-document.onfullscreenchange = ((_arg4) => {
+buttonSaveImage.onclick = ((_arg4) => {
+    const saveResWidth = window.prompt("Save resolution width:");
+    if (!(saveResWidth == null)) {
+        const saveResHeight = window.prompt("Save resolution height:");
+        if (!(saveResHeight == null)) {
+            if (forAll(isDigit, saveResHeight.split("")) ? forAll(isDigit, saveResWidth.split("")) : false) {
+                canv.width = parse(saveResWidth);
+                canv.height = parse(saveResHeight);
+                update();
+                update();
+                const link = document.querySelector("#link");
+                link.setAttribute("download", "fractal.png");
+                link.setAttribute("href", replace(canv.toDataURL("png"), "image/png", "image/octet-stream"));
+                link.click();
+                canv.width = WIDTH;
+                canv.height = HEIGHT;
+            }
+        }
+    }
+});
+
+document.onfullscreenchange = ((_arg5) => {
     if (document.fullscreenElement == null) {
         canv.width = WIDTH;
         canv.height = HEIGHT;
@@ -388,7 +419,7 @@ document.onfullscreenchange = ((_arg4) => {
     }
 });
 
-window.onresize = ((_arg5) => {
+window.onresize = ((_arg6) => {
     update();
     update();
 });

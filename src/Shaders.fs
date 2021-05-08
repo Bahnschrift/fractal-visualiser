@@ -130,6 +130,14 @@ let fsMandel = glsl """
         else if (index == 15) { return vec3(106, 52, 3) / 255.; }
     }
 
+    vec3 getPalatteBW(int index) {
+        if (index == 0) {return vec3(0.4, 0.4, 0.4); }
+        else if (index == 1) {return vec3(0.7, 0.7, 0.7); }
+        else if (index == 1) {return vec3(0.8, 0.8, 0.8); }
+        else if (index == 1) {return vec3(0.9, 0.9, 0.9); }
+        else if (index == 1) {return vec3(1.0, 1.0, 1.0); }
+    }
+
     vec3 linearInterpolate(vec3 v1, vec3 v2, float f) {
         return v1 * (1.0 - f) + v2 * f;
     }
@@ -222,6 +230,11 @@ let fsMandel = glsl """
                 vec3 col1 = getPalatte(int(m));
                 vec3 col2 = getPalatte(int(m) + 1);
                 col = col1 * (1.0 - mod(m, 1.0)) + col2 * (mod(m, 1.0));
+
+                // m = mod(m, 5.0);
+                // vec3 col1 = getPalatteBW(int(m));
+                // vec3 col2 = getPalatteBW(int(m) + 1);
+                // col = col1 * (1.0 - mod(m, 1.0)) + col2 * (mod(m, 1.0));
                 // col = getPalatte(int(mod(m, 75.)));
             }
         }
