@@ -30,7 +30,7 @@ let fsMandel = glsl """
     uniform float uJuliaX;
     uniform float uJuliaY;
 
-    const float MAX = 705.;
+    const float MAX = 1000.;
 
     vec3 getPalatte(int index) {
         if (index == 0) {return vec3(0.00005, 0.02816, 0.39805);}
@@ -130,6 +130,10 @@ let fsMandel = glsl """
         else if (index == 15) { return vec3(106, 52, 3) / 255.; }
     }
 
+    vec3 linearInterpolate(vec3 v1, vec3 v2, float f) {
+        return v1 * (1.0 - f) + v2 * f;
+    }
+
     float mandelbrot(float x, float y) {
         vec2 c = vec2(x, y);
         vec2 z = c;
@@ -162,7 +166,8 @@ let fsMandel = glsl """
         
         for (int i = 0; i <= int(MAX); i++) {
             if (length(z) > 4096.) {
-                return float(i);
+                return float(i) - log2(log2(dot(z, z))) + 4.0;
+                // return float(i);
             }
 
             if (z.x > 1.) {
@@ -206,9 +211,18 @@ let fsMandel = glsl """
         vec3 col = vec3(0., 0., 0.);
         if (m != MAX) {
             if (uGenerator == 3.0) {
-                col = getPalatteOld(int(mod(m, 16.)));
+                m = mod(m, 16.0);
+                vec3 col1 = getPalatteOld(int(m));
+                vec3 col2 = getPalatteOld(int(m) + 1);
+                col = linearInterpolate(col1, col2, mod(m, 1.0));
+                // col = getPalatteOld(int(mod(m, 16.)));
             } else {
-                col = getPalatte(int(mod(m, 75.)));
+                // col = getPalatte(int(mod(m, 75.)));
+                m = mod(m, 75.0);
+                vec3 col1 = getPalatte(int(m));
+                vec3 col2 = getPalatte(int(m) + 1);
+                col = col1 * (1.0 - mod(m, 1.0)) + col2 * (mod(m, 1.0));
+                // col = getPalatte(int(mod(m, 75.)));
             }
         }
         gl_FragColor = vec4(col.x, col.y, col.z, 1.);

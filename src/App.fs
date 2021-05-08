@@ -83,8 +83,10 @@ let update () =
             canvas.width <> displayWidth || 
             canvas.height <> displayHeight
         if needResize then
-            canvas.width <- displayWidth
-            canvas.height <- displayHeight
+            // canvas.width <- displayWidth
+            // canvas.height <- displayHeight
+            canv.width <- window.innerWidth * window.devicePixelRatio
+            canv.height <- window.innerHeight * window.devicePixelRatio
     
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
@@ -172,6 +174,7 @@ fieldJuliaPresets.oninput <- fun _ ->
         fieldJuliaY.value <- string <| snd juliaPresetCoords
     update()
 
+// TODO: Fix this
 let mutable keysDown = Set.empty
 document.onkeydown <- fun e ->
     let scale = 0.075
@@ -205,7 +208,7 @@ document.onkeyup <- fun e ->
 buttonFullscreen.onclick <- fun _ ->
     clear gl
     canv.requestFullscreen()
-    update()
+    // update()
 
 buttonCentre.onclick <- fun _ ->
     fieldX.value <- string <| 0
@@ -230,3 +233,6 @@ document.onfullscreenchange <- fun _ ->
         canv.width <- WIDTH
         canv.height <- HEIGHT
         update()
+
+// TODO: make this actually working so I don't have to just call it twice
+window.onresize <- fun _ -> update(); update()

@@ -3,7 +3,7 @@
   "scripts": {
     "start": "dotnet fable watch src --run webpack-dev-server",
     "compile": "dotnet fable src",
-    "build": "npx webpack --mode development"
+    "build": "npx webpack --mode production"
   },
   "devDependencies": {
     "webpack": "^4.46.0",

@@ -117,8 +117,8 @@ export function update() {
         const displayHeight = canvas.clientHeight;
         const needResize = (canvas.width !== displayWidth) ? true : (canvas.height !== displayHeight);
         if (needResize) {
-            canvas.width = displayWidth;
-            canvas.height = displayHeight;
+            canv.width = (window.innerWidth * window.devicePixelRatio);
+            canv.height = (window.innerHeight * window.devicePixelRatio);
         }
     };
     const zoom = parse(fieldZoom.value);
@@ -358,7 +358,6 @@ document.onkeyup = ((e) => {
 buttonFullscreen.onclick = ((_arg1) => {
     clear(gl);
     canv.requestFullscreen();
-    update();
 });
 
 buttonCentre.onclick = ((_arg2) => {
@@ -387,5 +386,10 @@ document.onfullscreenchange = ((_arg4) => {
         canv.height = HEIGHT;
         update();
     }
+});
+
+window.onresize = ((_arg5) => {
+    update();
+    update();
 });
 
