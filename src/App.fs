@@ -240,8 +240,14 @@ buttonSaveImage.onclick <- fun _ ->
                 canv.height <- float saveResHeight
                 update()
                 update()
+
+                let mode = 
+                    if fieldMandelbrot.checked then "Mandelbrot"
+                    elif fieldJulia.checked then "Julia"
+                    else "Mandelbox"
+                let fname = sprintf "%s x=%s,y=%s,zoom=%s %sx%s.png" mode fieldX.value fieldY.value fieldZoom.value saveResWidth saveResHeight
                 let link = document.querySelector "#link" :?> HTMLLinkElement
-                link.setAttribute("download", "fractal.png")
+                link.setAttribute("download", fname)
                 link.setAttribute("href", canv.toDataURL("png").Replace("image/png", "image/octet-stream"))
                 link.click()
                 canv.width <- float WIDTH

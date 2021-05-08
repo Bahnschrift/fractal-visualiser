@@ -400,8 +400,14 @@ buttonSaveImage.onclick = ((_arg4) => {
                 canv.height = parse(saveResHeight);
                 update();
                 update();
+                const mode = fieldMandelbrot.checked ? "Mandelbrot" : (fieldJulia.checked ? "Julia" : "Mandelbox");
+                let fname;
+                const arg40 = fieldZoom.value;
+                const arg30 = fieldY.value;
+                const arg20 = fieldX.value;
+                fname = toText(printf("%s x=%s,y=%s,zoom=%s %sx%s.png"))(mode)(arg20)(arg30)(arg40)(saveResWidth)(saveResHeight);
                 const link = document.querySelector("#link");
-                link.setAttribute("download", "fractal.png");
+                link.setAttribute("download", fname);
                 link.setAttribute("href", replace(canv.toDataURL("png"), "image/png", "image/octet-stream"));
                 link.click();
                 canv.width = WIDTH;
