@@ -18,6 +18,8 @@
             <div class="row align-items-start">
                 <div class="col-2" id="settingsfractal">
                     <h3>Fractal</h3>
+                    <label for="fractal" class="form-label">Algorithm:</label>
+                    <br>
                     <input type="radio" class="form-check-input" id="mandelbrot" name="fractal" value="mandelbrot" checked="true">
                     <label for="mandelbrot" class="form-check-label">Mandelbrot Set</label>
                     <br>
@@ -26,19 +28,24 @@
                     <br>
                     <input type="radio" class="form-check-input" id="mandelbox" name="fractal" value="mandelbox">
                     <label for="mandelbox" class="form-check-label">Mandelbox</label>
+                    <br>
+                    <br>
+                    <label for="palatteoffset" class="form-label text-center">Colour Palatte Offset:</label>
+                    <br>
+                    <input type="range" class="form-range" min="0" max="75" value="0" step="1" id="palatteoffset">
                 </div>
                 <div class="col-2" id="settingsposition">
                     <h3>Position</h3>
-                    <label for="x">X:</label>
+                    <label for="x" class="form-label">X:</label>
                     <input type="number" class="input-group-text" id="x" name="x" value="0" min="-2" max="2" step="0.1">
-                    <label for="y">Y:</label>
+                    <label for="y" class="form-label">Y:</label>
                     <input type="number" class="input-group-text" id="y" name="y" value="0.0" min="-1" max="1" step="0.1">
-                    <label for="zoom">Zoom:</label>
+                    <label for="zoom" class="form-label">Zoom:</label>
                     <input type="number" class="input-group-text" id="zoom" name="zoom" value="2.5" min="0" max="5" step="0.1">
                 </div>
                 <div class="col-2" id="settingsjulia" hidden>
                     <h3>Julia Set</h3>
-                    <label for="juliapresets">Presets:</label>
+                    <label for="juliapresets" class="form-label">Presets:</label>
                     <br>
                     <select name="juliapresets" class="form-select" id="juliapresets">
                         <option value="-1" selected>Choose...</option>
@@ -52,14 +59,14 @@
                         <option value="7">-0.673 + 0.312i</option>
                         <option value="8">0.355534 - 0.337292i</option>
                     </select>
-                    <label for="juliax">Real:</label>
+                    <label for="juliax" class="form-label">Real:</label>
                     <input type="number" class="input-group-text" id="juliax" name="jualiax" value="0" min="-2" max="2" step="0.05">
-                    <label for="juliay">Imaginary:</label>
+                    <label for="juliay" class="form-label">Imaginary:</label>
                     <input type="number" class="input-group-text" id="juliay" name="jualiay" value="0" min="-2" max="2" step="0.05">
                 </div>
                 <div class="col-2" id="settingsmandelbox" hidden>
                     <h3>Mandelbox</h3>
-                    <label for="mandelboxscale">Scale:</label>
+                    <label for="mandelboxscale" class="form-label">Scale:</label>
                     <input type="number" class="input-group-text" id="mandelboxscale" name="mandelboxscale" value="3" min="-5" max="5" step="0.1">
                 </div>
             </div>

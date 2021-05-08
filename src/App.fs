@@ -32,6 +32,7 @@ let getInputElement id = sprintf "#%s" id |> document.querySelector :?> HTMLInpu
 let fieldZoom = getInputElement "zoom"
 let fieldX = getInputElement "x"
 let fieldY = getInputElement "y"
+let fieldPalatteOffset = getInputElement "palatteoffset"
 let fieldFractal = getInputElement "fractal"
 let fieldMandelbrot = getInputElement "mandelbrot"
 let fieldMandelbox = getInputElement "mandelbox"
@@ -50,17 +51,19 @@ let buttonSaveImage = getButtonElement "saveimage"
 let cookieX = findCookieValue "x"
 let cookieY = findCookieValue "y"
 let cookieZoom = findCookieValue "zoom"
+let cookiePalatteOffset = findCookieValue "palatteoffset"
 let cookieGenerator = findCookieValue "generator"
 let cookieMandelboxScale = findCookieValue "mandelboxscale"
 let cookieJuliaX = findCookieValue "jx"
 let cookieJuliaY = findCookieValue "jy"
 
-let cookies = [|cookieX; cookieY; cookieZoom; cookieGenerator; cookieMandelboxScale; cookieJuliaX; cookieJuliaY|]
+let cookies = [|cookieX; cookieY; cookieZoom; cookiePalatteOffset; cookieGenerator; cookieMandelboxScale; cookieJuliaX; cookieJuliaY|]
 if (Array.forall (fun (c: option<string>) -> not c.IsNone) cookies) then
     try  // Prevents sneaky people from meddling with my cookies
         fieldX.value <- cookieX.Value
         fieldY.value <- cookieY.Value
         fieldZoom.value <- cookieZoom.Value
+        fieldPalatteOffset.value <- cookiePalatteOffset.Value
         match cookieGenerator.Value with
         | "1" -> fieldMandelbrot.checked <- true
         | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false;
@@ -96,6 +99,7 @@ let update() =
     let zoom = float fieldZoom.value
     let mutable x = float fieldX.value
     let mutable y = float fieldY.value
+    let palatteOffset = float fieldPalatteOffset.value
     let generator = 
         if fieldMandelbrot.checked then 1  // 1: Mandelrot
         elif fieldJulia.checked then 2  // 2: Julia
@@ -107,6 +111,7 @@ let update() =
     document.cookie <- sprintf "zoom=%f;" zoom
     document.cookie <- sprintf "x=%f;" x
     document.cookie <- sprintf "y=%f;" y
+    document.cookie <- sprintf "palatteoffset=%f" palatteOffset
     document.cookie <- sprintf "generator=%i" generator
     document.cookie <- sprintf "mandelboxscale=%f" mandelboxScale
     document.cookie <- sprintf "jx=%f" juliaX
@@ -122,6 +127,7 @@ let update() =
     let zoomUniform = createUniformLocation gl shaderProgram "uZoom"
     let xcUniform = createUniformLocation gl shaderProgram "xc"
     let ycUniform = createUniformLocation gl shaderProgram "yc"
+    let palatteOffsetUniform = createUniformLocation gl shaderProgram "uPalatteOffset"
     let ratioUniform = createUniformLocation gl shaderProgram "uRatio"
     let generatorUniform = createUniformLocation gl shaderProgram "uGenerator"
     let mandelboxScaleUniform = createUniformLocation gl shaderProgram "uMandelboxScale"
@@ -144,6 +150,7 @@ let update() =
         gl.uniform1f(zoomUniform, zoom)
         gl.uniform1f(xcUniform, x)
         gl.uniform1f(ycUniform, y)
+        gl.uniform1f(palatteOffsetUniform, palatteOffset)
         gl.uniform1f(ratioUniform, ratio)
         gl.uniform1f(generatorUniform, float generator)
         gl.uniform1f(mandelboxScaleUniform, mandelboxScale)
@@ -163,6 +170,7 @@ fieldZoom.oninput <- fun _ -> update()
 fieldX.oninput <- fun _ -> update()
 fieldY.oninput <- fun _ -> update()
 fieldMandelboxScale.oninput <- fun _ -> update()
+fieldPalatteOffset.oninput <- fun _ -> update()
 fieldJuliaX.oninput <- fun _ -> update()
 fieldJuliaY.oninput <- fun _ -> update()
 fieldMandelbrot.oninput <- fun _ -> 
@@ -228,6 +236,7 @@ buttonReset.onclick <- fun _ ->
     fieldX.value <- string 0
     fieldY.value <- string 0
     fieldZoom.value <- string 2.5
+    fieldPalatteOffset.value <- string 0
     fieldMandelboxScale.value <- string 3
     fieldJuliaX.value <- string 0
     fieldJuliaY.value <- string 0
@@ -252,7 +261,7 @@ buttonSaveImage.onclick <- fun _ ->
                     if fieldMandelbrot.checked then "Mandelbrot"
                     elif fieldJulia.checked then "Julia"
                     else "Mandelbox"
-                let fname = sprintf "%s x=%s,y=%s,zoom=%s %sx%s.png" mode fieldX.value fieldY.value fieldZoom.value saveResWidth saveResHeight
+                let fname = sprintf "%s x=%s,y=%s,zoom=%s,offset=%s %sx%s.png" mode fieldX.value fieldY.value fieldZoom.value fieldPalatteOffset.value saveResWidth saveResHeight
                 let link = document.querySelector "#link" :?> HTMLLinkElement
                 link.setAttribute("download", fname)
                 link.setAttribute("href", canv.toDataURL("png").Replace("image/png", "image/octet-stream"))

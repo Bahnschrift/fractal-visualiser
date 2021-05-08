@@ -25,6 +25,7 @@ let fsMandel = glsl """
     uniform float uZoom;
     uniform float xc;
     uniform float yc;
+    uniform float uPalatteOffset;
     uniform float uRatio;
     uniform float uGenerator;
     uniform float uMandelboxScale;
@@ -321,12 +322,12 @@ let fsMandel = glsl """
         vec3 col = vec3(0., 0., 0.);
         if (m != MAX) {
             if (uGenerator == 3.0) {  // Mandelbox
-                m = mod(m, 16.0);
+                m = mod(m + uPalatteOffset, 16.0);
                 vec3 col1 = getPalatteOld(int(m));
                 vec3 col2 = getPalatteOld(int(m) + 1);
                 col = linearInterpolate(col1, col2, mod(m, 1.0));
             } else {
-                m = mod(m, 75.0);
+                m = mod(m + uPalatteOffset, 75.0);
                 vec3 col1 = getPalatte(int(m));
                 vec3 col2 = getPalatte(int(m) + 1);
                 float f = mod(m, 1.0);

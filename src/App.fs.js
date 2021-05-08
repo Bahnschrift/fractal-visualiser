@@ -35,6 +35,8 @@ export const fieldX = getInputElement("x");
 
 export const fieldY = getInputElement("y");
 
+export const fieldPalatteOffset = getInputElement("palatteoffset");
+
 export const fieldFractal = getInputElement("fractal");
 
 export const fieldMandelbrot = getInputElement("mandelbrot");
@@ -69,6 +71,8 @@ export const cookieY = findCookieValue("y");
 
 export const cookieZoom = findCookieValue("zoom");
 
+export const cookiePalatteOffset = findCookieValue("palatteoffset");
+
 export const cookieGenerator = findCookieValue("generator");
 
 export const cookieMandelboxScale = findCookieValue("mandelboxscale");
@@ -77,13 +81,14 @@ export const cookieJuliaX = findCookieValue("jx");
 
 export const cookieJuliaY = findCookieValue("jy");
 
-export const cookies = [cookieX, cookieY, cookieZoom, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY];
+export const cookies = [cookieX, cookieY, cookieZoom, cookiePalatteOffset, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY];
 
 if (cookies.every((c) => (!(c == null)))) {
     try {
         fieldX.value = value_6(cookieX);
         fieldY.value = value_6(cookieY);
         fieldZoom.value = value_6(cookieZoom);
+        fieldPalatteOffset.value = value_6(cookiePalatteOffset);
         const matchValue = value_6(cookieGenerator);
         switch (matchValue) {
             case "1": {
@@ -136,6 +141,7 @@ export function update() {
     const zoom = parse(fieldZoom.value);
     let x = parse(fieldX.value);
     let y = parse(fieldY.value);
+    const palatteOffset = parse(fieldPalatteOffset.value);
     const generator = (fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldMandelbox.checked ? 3 : -1))) | 0;
     const mandelboxScale = parse(fieldMandelboxScale.value);
     const juliaX = parse(fieldJuliaX.value);
@@ -145,6 +151,7 @@ export function update() {
     document.cookie = toText(printf("x=%f;"))(arg10_1);
     const arg10_2 = y;
     document.cookie = toText(printf("y=%f;"))(arg10_2);
+    document.cookie = toText(printf("palatteoffset=%f"))(palatteOffset);
     document.cookie = toText(printf("generator=%i"))(generator);
     document.cookie = toText(printf("mandelboxscale=%f"))(mandelboxScale);
     document.cookie = toText(printf("jx=%f"))(juliaX);
@@ -160,6 +167,7 @@ export function update() {
     const zoomUniform = createUniformLocation(gl, shaderProgram, "uZoom");
     const xcUniform = createUniformLocation(gl, shaderProgram, "xc");
     const ycUniform = createUniformLocation(gl, shaderProgram, "yc");
+    const palatteOffsetUniform = createUniformLocation(gl, shaderProgram, "uPalatteOffset");
     const ratioUniform = createUniformLocation(gl, shaderProgram, "uRatio");
     const generatorUniform = createUniformLocation(gl, shaderProgram, "uGenerator");
     const mandelboxScaleUniform = createUniformLocation(gl, shaderProgram, "uMandelboxScale");
@@ -179,6 +187,7 @@ export function update() {
         gl.uniform1f(zoomUniform, zoom_1);
         gl.uniform1f(xcUniform, x_1);
         gl.uniform1f(ycUniform, y_1);
+        gl.uniform1f(palatteOffsetUniform, palatteOffset);
         gl.uniform1f(ratioUniform, ratio);
         gl.uniform1f(generatorUniform, generator);
         gl.uniform1f(mandelboxScaleUniform, mandelboxScale);
@@ -211,33 +220,37 @@ fieldMandelboxScale.oninput = ((_arg4) => {
     update();
 });
 
-fieldJuliaX.oninput = ((_arg5) => {
+fieldPalatteOffset.oninput = ((_arg5) => {
     update();
 });
 
-fieldJuliaY.oninput = ((_arg6) => {
+fieldJuliaX.oninput = ((_arg6) => {
     update();
 });
 
-fieldMandelbrot.oninput = ((_arg7) => {
+fieldJuliaY.oninput = ((_arg7) => {
+    update();
+});
+
+fieldMandelbrot.oninput = ((_arg8) => {
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
 });
 
-fieldJulia.oninput = ((_arg8) => {
+fieldJulia.oninput = ((_arg9) => {
     divJulia.hidden = false;
     divMandelbox.hidden = true;
     update();
 });
 
-fieldMandelbox.oninput = ((_arg9) => {
+fieldMandelbox.oninput = ((_arg10) => {
     divJulia.hidden = true;
     divMandelbox.hidden = false;
     update();
 });
 
-fieldJuliaPresets.oninput = ((_arg10) => {
+fieldJuliaPresets.oninput = ((_arg11) => {
     const juliaPreset = parse_1(fieldJuliaPresets.value, 511, false, 32) | 0;
     if (juliaPreset !== -1) {
         const juliaPresetCoords = juliaPresets[juliaPreset];
@@ -387,6 +400,7 @@ buttonReset.onclick = ((_arg3) => {
     fieldX.value = int32ToString(0);
     fieldY.value = int32ToString(0);
     fieldZoom.value = (2.5).toString();
+    fieldPalatteOffset.value = int32ToString(0);
     fieldMandelboxScale.value = int32ToString(3);
     fieldJuliaX.value = int32ToString(0);
     fieldJuliaY.value = int32ToString(0);
@@ -409,10 +423,11 @@ buttonSaveImage.onclick = ((_arg4) => {
                 update();
                 const mode = fieldMandelbrot.checked ? "Mandelbrot" : (fieldJulia.checked ? "Julia" : "Mandelbox");
                 let fname;
+                const arg50 = fieldPalatteOffset.value;
                 const arg40 = fieldZoom.value;
                 const arg30 = fieldY.value;
                 const arg20 = fieldX.value;
-                fname = toText(printf("%s x=%s,y=%s,zoom=%s %sx%s.png"))(mode)(arg20)(arg30)(arg40)(saveResWidth)(saveResHeight);
+                fname = toText(printf("%s x=%s,y=%s,zoom=%s,offset=%s %sx%s.png"))(mode)(arg20)(arg30)(arg40)(arg50)(saveResWidth)(saveResHeight);
                 const link = document.querySelector("#link");
                 link.setAttribute("download", fname);
                 link.setAttribute("href", replace(canv.toDataURL("png"), "image/png", "image/octet-stream"));
