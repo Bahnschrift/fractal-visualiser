@@ -143,7 +143,66 @@ let fsMandel = glsl """
         return v1 * (1.0 - f) + v2 * f;
     }
 
+    vec2 doubOfFloat(float upper) {
+        return vec2(upper, 0.0);
+    }
+
+    vec2 doubAddDoub(vec2 doubA, vec2 doubB) {
+        vec2 doubC;
+        float t1, t2, e;
+
+        t1 = doubA.x + doubB.x;
+        e = t1 - doubA.x;
+        t2 = ((doubB.x - e) + (doubA.x - (t1 - e))) + doubA.y + doubB.y;
+
+        doubC.x = t1 + t2;
+        doubC.y = t2 - (doubC.x - t1);
+        return doubC;
+    }
+
+    vec2 doubAddFloat(vec2 doub, float f) {
+        return doubAddDoub(doub, doubOfFloat(f));
+    }
+
+    vec2 doubMulDoub(vec2 doubA, vec2 doubB) {
+        vec2 doubC;
+        float c11, c21, c2, e, t1, t2;
+        float a1, a2, b1, b2, cona, conb, split = 8193.;
+
+        cona = doubA.x * split;
+        conb = doubB.x * split;
+        a1 = cona - (cona - doubA.x);
+        b1 = conb - (conb - doubB.x);
+        a2 = doubA.x - a1;
+        b2 = doubB.x - b1;
+
+        c11 = doubA.x * doubB.x;
+        c21 = a2 * b2 + (a2 * b1 + (a1 * b2 + (a1 * b1 - c11)));
+
+        c2 = doubA.x * doubB.y + doubA.y * doubB.x;
+
+        t1 = c11 + c2;
+        e = t1 - c11;
+        t2 = doubA.y * doubB.y + ((c2 - e) + (c11 - (t1 - e))) + c21;
+
+        doubC.x = t1 + t2;
+        doubC.y = t2 - (doubC.x - t1);
+        return doubC;
+    }
+
+    vec2 doubMulFloat(vec2 doub, float f) {
+        return doubMulDoub(doub, doubOfFloat(f));
+    }
+
     float mandelbrot(float x, float y) {
+        // float p = sqrt(pow((x - 0.25), 2.0) + y*y);
+        // if (x <= p - 2.0*p*p + 0.25) {
+        //     return MAX;
+        // }
+        if (pow(x + 1.0, 2.0) + y*y <= 0.0625) {
+            return MAX;
+        }
+
         vec2 c = vec2(x, y);
         vec2 z = c;
 
@@ -176,7 +235,6 @@ let fsMandel = glsl """
         for (int i = 0; i <= int(MAX); i++) {
             if (length(z) > 4096.) {
                 return float(i) - log2(log2(dot(z, z))) + 4.0;
-                // return float(i);
             }
 
             if (z.x > 1.) {
@@ -217,28 +275,22 @@ let fsMandel = glsl """
             return;
         }
 
+        // Colouring
         vec3 col = vec3(0., 0., 0.);
         if (m != MAX) {
-            if (uGenerator == 3.0) {
+            if (uGenerator == 3.0) {  // Mandelbox
                 m = mod(m, 16.0);
                 vec3 col1 = getPalatteOld(int(m));
                 vec3 col2 = getPalatteOld(int(m) + 1);
                 col = linearInterpolate(col1, col2, mod(m, 1.0));
-                // col = getPalatteOld(int(mod(m, 16.)));
             } else {
-                // col = getPalatte(int(mod(m, 75.)));
                 m = mod(m, 75.0);
                 vec3 col1 = getPalatte(int(m));
                 vec3 col2 = getPalatte(int(m) + 1);
-                col = col1 * (1.0 - mod(m, 1.0)) + col2 * (mod(m, 1.0));
-
-                // m = mod(m, 5.0);
-                // vec3 col1 = getPalatteBW(int(m));
-                // vec3 col2 = getPalatteBW(int(m) + 1);
-                // col = col1 * (1.0 - mod(m, 1.0)) + col2 * (mod(m, 1.0));
-                // col = getPalatte(int(mod(m, 75.)));
+                float f = mod(m, 1.0);
+                col = col1 * (1.0 - f) + col2 * f;
             }
         }
-        gl_FragColor = vec4(col.x, col.y, col.z, 1.);
+        gl_FragColor = vec4(col.xyz, 1.0);
     }
     """

@@ -7,6 +7,7 @@ open WebGLHelper
 open Browser.Dom
 open Browser.Types
 
+
 let WIDTH = float 1280
 let HEIGHT = float 720
 
