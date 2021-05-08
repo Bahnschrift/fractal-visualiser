@@ -4,6 +4,7 @@ open System
 open Shaders
 open Cookies
 open WebGLHelper
+open DoublePrecision
 open Browser.Dom
 open Browser.Types
 
@@ -22,7 +23,6 @@ let juliaPresets = [|
     -0.673, 0.312;
     0.355534, 0.337292
 |]
-
 
 let getDivElement id = sprintf "#%s" id |> document.querySelector :?> HTMLDivElement
 let divMandelbox = getDivElement "settingsmandelbox"
@@ -127,6 +127,9 @@ let update() =
     let mandelboxScaleUniform = createUniformLocation gl shaderProgram "uMandelboxScale"
     let juliaXUniform = createUniformLocation gl shaderProgram "uJuliaX"
     let juliaYUniform = createUniformLocation gl shaderProgram "uJuliaY"
+    let zoomDoubUniform = createUniformLocation gl shaderProgram "uZoomDoub"
+    let xcDoubUniform = createUniformLocation gl shaderProgram "xcDoub"
+    let ycDoubUniform = createUniformLocation gl shaderProgram "ycDoub"
 
     let draw zoom x y (ratio: float) =
         resizeCanvas gl.canvas
@@ -146,6 +149,9 @@ let update() =
         gl.uniform1f(mandelboxScaleUniform, mandelboxScale)
         gl.uniform1f(juliaXUniform, juliaX)
         gl.uniform1f(juliaYUniform, juliaY)
+        gl.uniform2fv(zoomDoubUniform, zoom |> SplitDouble.ofFloat |> SplitDouble.toUniform)
+        gl.uniform2fv(xcDoubUniform, x |> SplitDouble.ofFloat |> SplitDouble.toUniform)
+        gl.uniform2fv(ycDoubUniform, y |> SplitDouble.ofFloat |> SplitDouble.toUniform)
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0., 4.)
 

@@ -4,6 +4,7 @@ import { value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
 import { parse } from "./.fable/fable-library.3.1.1/Double.js";
+import { SplitDouble_ofFloat_5E38073B, SplitDouble_toUniform_189C8C6F } from "./DoublePrecision.fs.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Int32.js";
 import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-library.3.1.1/Util.js";
 import { FSharpSet__Remove, FSharpSet__Add, empty } from "./.fable/fable-library.3.1.1/Set.js";
@@ -164,6 +165,9 @@ export function update() {
     const mandelboxScaleUniform = createUniformLocation(gl, shaderProgram, "uMandelboxScale");
     const juliaXUniform = createUniformLocation(gl, shaderProgram, "uJuliaX");
     const juliaYUniform = createUniformLocation(gl, shaderProgram, "uJuliaY");
+    const zoomDoubUniform = createUniformLocation(gl, shaderProgram, "uZoomDoub");
+    const xcDoubUniform = createUniformLocation(gl, shaderProgram, "xcDoub");
+    const ycDoubUniform = createUniformLocation(gl, shaderProgram, "ycDoub");
     const draw = (zoom_1, x_1, y_1, ratio) => {
         resizeCanvas(gl.canvas);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -180,6 +184,9 @@ export function update() {
         gl.uniform1f(mandelboxScaleUniform, mandelboxScale);
         gl.uniform1f(juliaXUniform, juliaX);
         gl.uniform1f(juliaYUniform, juliaY);
+        gl.uniform2fv(zoomDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(zoom_1)));
+        gl.uniform2fv(xcDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(x_1)));
+        gl.uniform2fv(ycDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(y_1)));
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
     draw(zoom, x, y, gl.canvas.width / gl.canvas.height);

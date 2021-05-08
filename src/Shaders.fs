@@ -31,6 +31,10 @@ let fsMandel = glsl """
     uniform float uJuliaX;
     uniform float uJuliaY;
 
+    uniform vec2 uZoomDoub;
+    uniform vec2 xcDoub;
+    uniform vec2 ycDoub;
+
     const float MAX = 1000.;
 
     vec3 getPalatte(int index) {
@@ -215,6 +219,25 @@ let fsMandel = glsl """
         return MAX;
     }
 
+    float mandelbrotDoub(vec2 x, vec2 y) {
+        // float p = sqrt(pow((x - 0.25), 2.0) + y*y);
+        // if (x <= p - 2.0*p*p + 0.25) {
+        //     return MAX;
+        // }
+        vec2 zx = x;
+        vec2 zy = y;
+
+        for (int i = 0; i <= int(MAX); i++) {
+            if (doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(zy, zy)).x > 4096.0) {
+                return float(i) + 1.0 - log2(log(sqrt(doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(zy, zy)).x)));
+            }
+            vec2 zxTemp = doubAddDoub(doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(doubOfFloat(-1.0), doubMulDoub(zy, zy))), x);
+            zy = doubAddDoub(doubMulFloat(doubMulDoub(zx, zy), 2.0), y);
+            zx = zxTemp;
+        }
+        return MAX;
+    }
+
     float julia(float x, float y) {
         vec2 c = vec2(uJuliaX, uJuliaY);
         vec2 z = vec2(x, y);
@@ -224,6 +247,23 @@ let fsMandel = glsl """
                 return float(i) - log2(log(dot(z, z)) / log(10.)) + 2.0;
             }
             z = vec2(z.x*z.x - z.y*z.y + c.x, 2.0*z.x*z.y + c.y);
+        }
+        return MAX;
+    }
+
+    float juliaDoub(vec2 x, vec2 y) {
+        vec2 zx = x;
+        vec2 zy = y;
+        vec2 cx = doubOfFloat(uJuliaX);
+        vec2 cy = doubOfFloat(uJuliaY);
+
+        for (int i = 0; i <= int(MAX); i++) {
+            if (doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(zy, zy)).x > 4096.0) {
+                return float(i) + 1.0 - log2(log(sqrt(doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(zy, zy)).x)));
+            }
+            vec2 zxTemp = doubAddDoub(doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(doubOfFloat(-1.0), doubMulDoub(zy, zy))), cx);
+            zy = doubAddDoub(doubMulFloat(doubMulDoub(zx, zy), 2.0), cy);
+            zx = zxTemp;
         }
         return MAX;
     }
@@ -261,15 +301,17 @@ let fsMandel = glsl """
     }
 
     void main() {
-        float x = xc + (vTextureCoord.x - 0.5) * uZoom * uRatio;
-        float y = yc + (vTextureCoord.y - 0.5) * uZoom;
+        // float x = xc + (vTextureCoord.x - 0.5) * uZoom * uRatio;
+        // float y = yc + (vTextureCoord.y - 0.5) * uZoom;
+        vec2 x = doubAddDoub(xcDoub, doubMulFloat(uZoomDoub, uRatio * (vTextureCoord.x - 0.5)));
+        vec2 y = doubAddDoub(ycDoub, doubMulFloat(uZoomDoub, vTextureCoord.y - 0.5));
         float m = 0.0;
         if (uGenerator == 1.0) {
-            m = mandelbrot(x, y);
+            m = mandelbrotDoub(x, y);
         } else if (uGenerator == 2.0) {
-            m = julia(x, y);
+            m = juliaDoub(x, y);
         }  else if (uGenerator == 3.0) {
-            m = mandelbox(x, y);
+            m = mandelbox(x.x, y.x);
         } else {
             gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.);
             return;

@@ -1,15 +1,13 @@
 module DoublePrecision
 
 open Fable.Core.JsInterop
-open Browser.Dom
-open Browser.Types
 
 
 let toDouble (num: float) = 
-    (num?toPrecision(16): string) |> float
+    (num?toPrecision(32): string) |> float
 
 let toFloat (num: float) = 
-    (num?toPrecision(8): string) |> float
+    (num?toPrecision(16): string) |> float
 
 let splitDouble (num: float) = 
     let upper = toFloat num
@@ -18,12 +16,14 @@ let splitDouble (num: float) =
 
 type SplitDouble = 
     | SplitDouble of float * float
-    static member ofDouble (num: double) = 
+    static member ofFloat (num: double) = 
         splitDouble num |> SplitDouble
-    static member Upper (SplitDouble(up, _)) = 
-        up
+    static member Upper (SplitDouble(hi, _)) = 
+        hi
     static member Lower (SplitDouble(_, lo)) = 
         lo
+    static member toUniform (SplitDouble(hi, lo)) = 
+        Fable.Core.JS.Constructors.Float32Array.Create [|hi; lo|]
     member this.upper = 
         SplitDouble.Upper this
     member this.lower = 
