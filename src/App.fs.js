@@ -51,6 +51,8 @@ export const fieldJuliaX = getInputElement("juliax");
 
 export const fieldJuliaY = getInputElement("juliay");
 
+export const fieldUseDoub = getInputElement("usedoub");
+
 export const fieldJuliaPresets = document.querySelector("#juliapresets");
 
 export function getButtonElement(id) {
@@ -81,7 +83,9 @@ export const cookieJuliaX = findCookieValue("jx");
 
 export const cookieJuliaY = findCookieValue("jy");
 
-export const cookies = [cookieX, cookieY, cookieZoom, cookiePalatteOffset, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY];
+export const cookieUseDoub = findCookieValue("usedoub");
+
+export const cookies = [cookieX, cookieY, cookieZoom, cookiePalatteOffset, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub];
 
 if (cookies.every((c) => (!(c == null)))) {
     try {
@@ -111,6 +115,7 @@ if (cookies.every((c) => (!(c == null)))) {
         fieldMandelboxScale.value = value_6(cookieMandelboxScale);
         fieldJuliaX.value = value_6(cookieJuliaX);
         fieldJuliaY.value = value_6(cookieJuliaY);
+        fieldUseDoub.checked = ((value_6(cookieJuliaY) === "true") ? true : false);
     }
     catch (matchValue_1) {
     }
@@ -146,6 +151,7 @@ export function update() {
     const mandelboxScale = parse(fieldMandelboxScale.value);
     const juliaX = parse(fieldJuliaX.value);
     const juliaY = parse(fieldJuliaY.value);
+    const useDoub = fieldUseDoub.checked;
     document.cookie = toText(printf("zoom=%f;"))(zoom);
     const arg10_1 = x;
     document.cookie = toText(printf("x=%f;"))(arg10_1);
@@ -156,6 +162,7 @@ export function update() {
     document.cookie = toText(printf("mandelboxscale=%f"))(mandelboxScale);
     document.cookie = toText(printf("jx=%f"))(juliaX);
     document.cookie = toText(printf("jy=%f"))(juliaY);
+    document.cookie = toText(printf("usedoub=%b"))(useDoub);
     fieldX.step = (0.1 * zoom).toString();
     fieldY.step = (0.1 * zoom).toString();
     fieldZoom.step = (0.1 * zoom).toString();
@@ -164,18 +171,20 @@ export function update() {
     const colourBuffer = patternInput[1];
     const vertexPositionAttr = createAttributeLocation(gl, shaderProgram, "aVertexPosition");
     const textureCoordAttr = createAttributeLocation(gl, shaderProgram, "aTextureCoord");
-    const zoomUniform = createUniformLocation(gl, shaderProgram, "uZoom");
-    const xcUniform = createUniformLocation(gl, shaderProgram, "xc");
-    const ycUniform = createUniformLocation(gl, shaderProgram, "yc");
-    const palatteOffsetUniform = createUniformLocation(gl, shaderProgram, "uPalatteOffset");
-    const ratioUniform = createUniformLocation(gl, shaderProgram, "uRatio");
-    const generatorUniform = createUniformLocation(gl, shaderProgram, "uGenerator");
-    const mandelboxScaleUniform = createUniformLocation(gl, shaderProgram, "uMandelboxScale");
-    const juliaXUniform = createUniformLocation(gl, shaderProgram, "uJuliaX");
-    const juliaYUniform = createUniformLocation(gl, shaderProgram, "uJuliaY");
-    const zoomDoubUniform = createUniformLocation(gl, shaderProgram, "uZoomDoub");
-    const xcDoubUniform = createUniformLocation(gl, shaderProgram, "xcDoub");
-    const ycDoubUniform = createUniformLocation(gl, shaderProgram, "ycDoub");
+    const uLoc = (loc) => createUniformLocation(gl, shaderProgram, loc);
+    const zoomUniform = uLoc("uZoom");
+    const xcUniform = uLoc("xc");
+    const ycUniform = uLoc("yc");
+    const palatteOffsetUniform = uLoc("uPalatteOffset");
+    const ratioUniform = uLoc("uRatio");
+    const generatorUniform = uLoc("uGenerator");
+    const mandelboxScaleUniform = uLoc("uMandelboxScale");
+    const juliaXUniform = uLoc("uJuliaX");
+    const juliaYUniform = uLoc("uJuliaY");
+    const zoomDoubUniform = uLoc("uZoomDoub");
+    const xcDoubUniform = uLoc("xcDoub");
+    const ycDoubUniform = uLoc("ycDoub");
+    const useDoubUniform = uLoc("uUseDoub");
     const draw = (zoom_1, x_1, y_1, ratio) => {
         resizeCanvas(gl.canvas);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -196,6 +205,7 @@ export function update() {
         gl.uniform2fv(zoomDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(zoom_1)));
         gl.uniform2fv(xcDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(x_1)));
         gl.uniform2fv(ycDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(y_1)));
+        gl.uniform1i(useDoubUniform, useDoub ? 1 : 0);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     };
     draw(zoom, x, y, gl.canvas.width / gl.canvas.height);
@@ -257,6 +267,10 @@ fieldJuliaPresets.oninput = ((_arg11) => {
         fieldJuliaX.value = juliaPresetCoords[0].toString();
         fieldJuliaY.value = juliaPresetCoords[1].toString();
     }
+    update();
+});
+
+fieldUseDoub.oninput = ((_arg12) => {
     update();
 });
 
@@ -406,6 +420,7 @@ buttonReset.onclick = ((_arg3) => {
     fieldJuliaY.value = int32ToString(0);
     fieldJuliaPresets.value = int32ToString(-1);
     fieldMandelbrot.checked = true;
+    fieldUseDoub.checked = false;
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();

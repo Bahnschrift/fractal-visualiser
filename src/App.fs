@@ -40,6 +40,7 @@ let fieldMandelboxScale = getInputElement "mandelboxscale"
 let fieldJulia = getInputElement "julia"
 let fieldJuliaX = getInputElement "juliax"
 let fieldJuliaY = getInputElement "juliay"
+let fieldUseDoub = getInputElement "usedoub"
 let fieldJuliaPresets = document.querySelector "#juliapresets" :?> HTMLSelectElement
 
 let getButtonElement id = sprintf "#%s" id |> document.querySelector :?> HTMLButtonElement
@@ -56,8 +57,9 @@ let cookieGenerator = findCookieValue "generator"
 let cookieMandelboxScale = findCookieValue "mandelboxscale"
 let cookieJuliaX = findCookieValue "jx"
 let cookieJuliaY = findCookieValue "jy"
+let cookieUseDoub = findCookieValue "usedoub"
 
-let cookies = [|cookieX; cookieY; cookieZoom; cookiePalatteOffset; cookieGenerator; cookieMandelboxScale; cookieJuliaX; cookieJuliaY|]
+let cookies = [|cookieX; cookieY; cookieZoom; cookiePalatteOffset; cookieGenerator; cookieMandelboxScale; cookieJuliaX; cookieJuliaY; cookieUseDoub|]
 if (Array.forall (fun (c: option<string>) -> not c.IsNone) cookies) then
     try  // Prevents sneaky people from meddling with my cookies
         fieldX.value <- cookieX.Value
@@ -72,6 +74,7 @@ if (Array.forall (fun (c: option<string>) -> not c.IsNone) cookies) then
         fieldMandelboxScale.value <- cookieMandelboxScale.Value
         fieldJuliaX.value <- cookieJuliaX.Value
         fieldJuliaY.value <- cookieJuliaY.Value
+        fieldUseDoub.checked <- if cookieJuliaY.Value = "true" then true else false
     with
     | _ -> ()
 
@@ -108,6 +111,7 @@ let update() =
     let mandelboxScale = float fieldMandelboxScale.value
     let juliaX = float fieldJuliaX.value
     let juliaY = float fieldJuliaY.value
+    let useDoub = fieldUseDoub.checked
     document.cookie <- sprintf "zoom=%f;" zoom
     document.cookie <- sprintf "x=%f;" x
     document.cookie <- sprintf "y=%f;" y
@@ -116,26 +120,32 @@ let update() =
     document.cookie <- sprintf "mandelboxscale=%f" mandelboxScale
     document.cookie <- sprintf "jx=%f" juliaX
     document.cookie <- sprintf "jy=%f" juliaY
+    document.cookie <- sprintf "usedoub=%b" useDoub
 
     fieldX.step <- 0.1 * zoom |> string
     fieldY.step <- 0.1 * zoom |> string
     fieldZoom.step <- 0.1 * zoom |> string
 
     let positionBuffer, colourBuffer = initBuffers gl
+
+    
     let vertexPositionAttr = createAttributeLocation gl shaderProgram "aVertexPosition"
     let textureCoordAttr = createAttributeLocation gl shaderProgram "aTextureCoord"
-    let zoomUniform = createUniformLocation gl shaderProgram "uZoom"
-    let xcUniform = createUniformLocation gl shaderProgram "xc"
-    let ycUniform = createUniformLocation gl shaderProgram "yc"
-    let palatteOffsetUniform = createUniformLocation gl shaderProgram "uPalatteOffset"
-    let ratioUniform = createUniformLocation gl shaderProgram "uRatio"
-    let generatorUniform = createUniformLocation gl shaderProgram "uGenerator"
-    let mandelboxScaleUniform = createUniformLocation gl shaderProgram "uMandelboxScale"
-    let juliaXUniform = createUniformLocation gl shaderProgram "uJuliaX"
-    let juliaYUniform = createUniformLocation gl shaderProgram "uJuliaY"
-    let zoomDoubUniform = createUniformLocation gl shaderProgram "uZoomDoub"
-    let xcDoubUniform = createUniformLocation gl shaderProgram "xcDoub"
-    let ycDoubUniform = createUniformLocation gl shaderProgram "ycDoub"
+
+    let uLoc loc = createUniformLocation gl shaderProgram loc
+    let zoomUniform = uLoc "uZoom"
+    let xcUniform = uLoc "xc"
+    let ycUniform = uLoc "yc"
+    let palatteOffsetUniform = uLoc "uPalatteOffset"
+    let ratioUniform = uLoc "uRatio"
+    let generatorUniform = uLoc "uGenerator"
+    let mandelboxScaleUniform = uLoc "uMandelboxScale"
+    let juliaXUniform = uLoc "uJuliaX"
+    let juliaYUniform = uLoc "uJuliaY"
+    let zoomDoubUniform = uLoc "uZoomDoub"
+    let xcDoubUniform = uLoc "xcDoub"
+    let ycDoubUniform = uLoc "ycDoub"
+    let useDoubUniform = uLoc "uUseDoub"
 
     let draw zoom x y (ratio: float) =
         resizeCanvas gl.canvas
@@ -159,6 +169,7 @@ let update() =
         gl.uniform2fv(zoomDoubUniform, zoom |> SplitDouble.ofFloat |> SplitDouble.toUniform)
         gl.uniform2fv(xcDoubUniform, x |> SplitDouble.ofFloat |> SplitDouble.toUniform)
         gl.uniform2fv(ycDoubUniform, y |> SplitDouble.ofFloat |> SplitDouble.toUniform)
+        gl.uniform1i(useDoubUniform, if useDoub then 1.0 else 0.0)
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0., 4.)
 
@@ -192,6 +203,7 @@ fieldJuliaPresets.oninput <- fun _ ->
         fieldJuliaX.value <- string <| fst juliaPresetCoords
         fieldJuliaY.value <- string <| snd juliaPresetCoords
     update()
+fieldUseDoub.oninput <- fun _ -> update()
 
 // TODO: Fix this
 let mutable keysDown = Set.empty
@@ -242,6 +254,7 @@ buttonReset.onclick <- fun _ ->
     fieldJuliaY.value <- string 0
     fieldJuliaPresets.value <- string -1
     fieldMandelbrot.checked <- true
+    fieldUseDoub.checked <- false
     divMandelbox.hidden <- true
     divJulia.hidden <- true
     update()

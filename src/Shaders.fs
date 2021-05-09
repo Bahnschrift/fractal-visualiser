@@ -32,6 +32,7 @@ let fsMandel = glsl """
     uniform float uJuliaX;
     uniform float uJuliaY;
 
+    uniform int uUseDoub;
     uniform vec2 uZoomDoub;
     uniform vec2 xcDoub;
     uniform vec2 ycDoub;
@@ -199,11 +200,11 @@ let fsMandel = glsl """
         return doubMulDoub(doub, doubOfFloat(f));
     }
 
+    vec2 doubDot(vec2 x, vec2 y) {
+        return doubAddDoub(doubMulDoub(x, x), doubMulDoub(y, y));
+    }
+
     float mandelbrot(float x, float y) {
-        // float p = sqrt(pow((x - 0.25), 2.0) + y*y);
-        // if (x <= p - 2.0*p*p + 0.25) {
-        //     return MAX;
-        // }
         if (pow(x + 1.0, 2.0) + y*y <= 0.0625) {
             return MAX;
         }
@@ -221,16 +222,12 @@ let fsMandel = glsl """
     }
 
     float mandelbrotDoub(vec2 x, vec2 y) {
-        // float p = sqrt(pow((x - 0.25), 2.0) + y*y);
-        // if (x <= p - 2.0*p*p + 0.25) {
-        //     return MAX;
-        // }
         vec2 zx = x;
         vec2 zy = y;
 
         for (int i = 0; i <= int(MAX); i++) {
             if (doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(zy, zy)).x > 4096.0) {
-                return float(i) + 1.0 - log2(log(sqrt(doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(zy, zy)).x)));
+                return float(i) - log2(log2(doubDot(zx, zy).x)) + 4.0;
             }
             vec2 zxTemp = doubAddDoub(doubAddDoub(doubMulDoub(zx, zx), doubMulDoub(doubOfFloat(-1.0), doubMulDoub(zy, zy))), x);
             zy = doubAddDoub(doubMulFloat(doubMulDoub(zx, zy), 2.0), y);
@@ -245,7 +242,7 @@ let fsMandel = glsl """
 
         for (int i = 0; i <= int(MAX); i++) {
             if (length(z) > 4096.) {
-                return float(i) - log2(log(dot(z, z)) / log(10.)) + 2.0;
+                return float(i) - log2(log(dot(z, z)) / log(10.0)) + 2.0;
             }
             z = vec2(z.x*z.x - z.y*z.y + c.x, 2.0*z.x*z.y + c.y);
         }
@@ -302,20 +299,35 @@ let fsMandel = glsl """
     }
 
     void main() {
-        // float x = xc + (vTextureCoord.x - 0.5) * uZoom * uRatio;
-        // float y = yc + (vTextureCoord.y - 0.5) * uZoom;
-        vec2 x = doubAddDoub(xcDoub, doubMulFloat(uZoomDoub, uRatio * (vTextureCoord.x - 0.5)));
-        vec2 y = doubAddDoub(ycDoub, doubMulFloat(uZoomDoub, vTextureCoord.y - 0.5));
+        bool useDoub = uUseDoub == 1 ? true : false;
+        
         float m = 0.0;
-        if (uGenerator == 1.0) {
-            m = mandelbrotDoub(x, y);
-        } else if (uGenerator == 2.0) {
-            m = juliaDoub(x, y);
-        }  else if (uGenerator == 3.0) {
-            m = mandelbox(x.x, y.x);
+        if (useDoub) {
+            vec2 x = doubAddDoub(xcDoub, doubMulFloat(uZoomDoub, uRatio * (vTextureCoord.x - 0.5)));
+            vec2 y = doubAddDoub(ycDoub, doubMulFloat(uZoomDoub, vTextureCoord.y - 0.5));
+            if (uGenerator == 1.0) {
+                m = mandelbrotDoub(x, y);
+            } else if (uGenerator == 2.0) {
+                m = juliaDoub(x, y);
+            }  else if (uGenerator == 3.0) {
+                m = mandelbox(x.x, y.x);
+            } else {
+                gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.);
+                return;
+            }
         } else {
-            gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.);
-            return;
+            float x = xc + (vTextureCoord.x - 0.5) * uZoom * uRatio;
+            float y = yc + (vTextureCoord.y - 0.5) * uZoom;
+            if (uGenerator == 1.0) {
+                m = mandelbrot(x, y);
+            } else if (uGenerator == 2.0) {
+                m = julia(x, y);
+            }  else if (uGenerator == 3.0) {
+                m = mandelbox(x, y);
+            } else {
+                gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.);
+                return;
+            }
         }
 
         // Colouring
