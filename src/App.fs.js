@@ -1,12 +1,12 @@
 import { replace, printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { findCookieValue } from "./Cookies.fs.js";
-import { value as value_6 } from "./.fable/fable-library.3.1.1/Option.js";
+import { value as value_3 } from "./.fable/fable-library.3.1.1/Option.js";
+import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-library.3.1.1/Util.js";
+import { parse } from "./.fable/fable-library.3.1.1/Double.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
-import { parse } from "./.fable/fable-library.3.1.1/Double.js";
 import { SplitDouble_ofFloat_5E38073B, SplitDouble_toUniform_189C8C6F } from "./DoublePrecision.fs.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Int32.js";
-import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-library.3.1.1/Util.js";
 import { FSharpSet__Remove, FSharpSet__Add, empty } from "./.fable/fable-library.3.1.1/Set.js";
 import { forAll, getEnumerator } from "./.fable/fable-library.3.1.1/Seq.js";
 import { isDigit } from "./.fable/fable-library.3.1.1/Char.js";
@@ -35,7 +35,7 @@ export const fieldX = getInputElement("x");
 
 export const fieldY = getInputElement("y");
 
-export const fieldPalatteOffset = getInputElement("palatteoffset");
+export const fieldPalletteOffset = getInputElement("palletteoffset");
 
 export const fieldFractal = getInputElement("fractal");
 
@@ -73,7 +73,7 @@ export const cookieY = findCookieValue("y");
 
 export const cookieZoom = findCookieValue("zoom");
 
-export const cookiePalatteOffset = findCookieValue("palatteoffset");
+export const cookiePalletteOffset = findCookieValue("palletteoffset");
 
 export const cookieGenerator = findCookieValue("generator");
 
@@ -85,41 +85,62 @@ export const cookieJuliaY = findCookieValue("jy");
 
 export const cookieUseDoub = findCookieValue("usedoub");
 
-export const cookies = [cookieX, cookieY, cookieZoom, cookiePalatteOffset, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub];
-
-if (cookies.every((c) => (!(c == null)))) {
-    try {
-        fieldX.value = value_6(cookieX);
-        fieldY.value = value_6(cookieY);
-        fieldZoom.value = value_6(cookieZoom);
-        fieldPalatteOffset.value = value_6(cookiePalatteOffset);
-        const matchValue = value_6(cookieGenerator);
-        switch (matchValue) {
-            case "1": {
-                fieldMandelbrot.checked = true;
-                break;
+export function setupCookies() {
+    const cookies = [cookieX, cookieY, cookieZoom, cookiePalletteOffset, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub];
+    if (cookies.every((c) => (!(c == null)))) {
+        try {
+            fieldX.value = value_3(cookieX);
+            fieldY.value = value_3(cookieY);
+            fieldZoom.value = value_3(cookieZoom);
+            fieldPalletteOffset.value = value_3(cookiePalletteOffset);
+            const matchValue = value_3(cookieGenerator);
+            switch (matchValue) {
+                case "1": {
+                    fieldMandelbrot.checked = true;
+                    break;
+                }
+                case "2": {
+                    fieldJulia.checked = true;
+                    divJulia.hidden = false;
+                    break;
+                }
+                case "3": {
+                    fieldMandelbox.checked = true;
+                    divMandelbox.hidden = false;
+                    break;
+                }
+                default: {
+                }
             }
-            case "2": {
-                fieldJulia.checked = true;
-                divJulia.hidden = false;
-                break;
-            }
-            case "3": {
-                fieldMandelbox.checked = true;
-                divMandelbox.hidden = false;
-                break;
-            }
-            default: {
-            }
+            fieldMandelboxScale.value = value_3(cookieMandelboxScale);
+            fieldJuliaX.value = value_3(cookieJuliaX);
+            fieldJuliaY.value = value_3(cookieJuliaY);
+            fieldUseDoub.checked = ((value_3(cookieJuliaY) === "true") ? true : false);
         }
-        fieldMandelboxScale.value = value_6(cookieMandelboxScale);
-        fieldJuliaX.value = value_6(cookieJuliaX);
-        fieldJuliaY.value = value_6(cookieJuliaY);
-        fieldUseDoub.checked = ((value_6(cookieJuliaY) === "true") ? true : false);
-    }
-    catch (matchValue_1) {
+        catch (matchValue_1) {
+        }
     }
 }
+
+setupCookies();
+
+export const zoom = createAtom(parse(fieldZoom.value));
+
+export const x = createAtom(parse(fieldX.value));
+
+export const y = createAtom(parse(fieldY.value));
+
+export const palletteOffset = createAtom(parse(fieldPalletteOffset.value));
+
+export const generator = createAtom(fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldMandelbox.checked ? 3 : -1)));
+
+export const mandelboxScale = createAtom(parse(fieldMandelboxScale.value));
+
+export const juliaX = createAtom(parse(fieldJuliaX.value));
+
+export const juliaY = createAtom(parse(fieldJuliaY.value));
+
+export const useDoub = createAtom(fieldUseDoub.checked);
 
 export const canv = document.querySelector("#canv");
 
@@ -143,29 +164,35 @@ export function update() {
             canvas.height = (window.innerHeight * window.devicePixelRatio);
         }
     };
-    const zoom = parse(fieldZoom.value);
-    let x = parse(fieldX.value);
-    let y = parse(fieldY.value);
-    const palatteOffset = parse(fieldPalatteOffset.value);
-    const generator = (fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldMandelbox.checked ? 3 : -1))) | 0;
-    const mandelboxScale = parse(fieldMandelboxScale.value);
-    const juliaX = parse(fieldJuliaX.value);
-    const juliaY = parse(fieldJuliaY.value);
-    const useDoub = fieldUseDoub.checked;
-    document.cookie = toText(printf("zoom=%f;"))(zoom);
-    const arg10_1 = x;
+    const arg10 = zoom();
+    document.cookie = toText(printf("zoom=%f;"))(arg10);
+    const arg10_1 = x();
     document.cookie = toText(printf("x=%f;"))(arg10_1);
-    const arg10_2 = y;
+    const arg10_2 = y();
     document.cookie = toText(printf("y=%f;"))(arg10_2);
-    document.cookie = toText(printf("palatteoffset=%f"))(palatteOffset);
-    document.cookie = toText(printf("generator=%i"))(generator);
-    document.cookie = toText(printf("mandelboxscale=%f"))(mandelboxScale);
-    document.cookie = toText(printf("jx=%f"))(juliaX);
-    document.cookie = toText(printf("jy=%f"))(juliaY);
-    document.cookie = toText(printf("usedoub=%b"))(useDoub);
-    fieldX.step = (0.1 * zoom).toString();
-    fieldY.step = (0.1 * zoom).toString();
-    fieldZoom.step = (0.1 * zoom).toString();
+    const arg10_3 = palletteOffset();
+    document.cookie = toText(printf("palletteoffset=%f"))(arg10_3);
+    const arg10_4 = generator() | 0;
+    document.cookie = toText(printf("generator=%i"))(arg10_4);
+    const arg10_5 = mandelboxScale();
+    document.cookie = toText(printf("mandelboxscale=%f"))(arg10_5);
+    const arg10_6 = juliaX();
+    document.cookie = toText(printf("jx=%f"))(arg10_6);
+    const arg10_7 = juliaY();
+    document.cookie = toText(printf("jy=%f"))(arg10_7);
+    const arg10_8 = useDoub();
+    document.cookie = toText(printf("usedoub=%b"))(arg10_8);
+    fieldX.value = x().toString();
+    fieldY.value = y().toString();
+    fieldZoom.value = zoom().toString();
+    fieldPalletteOffset.value = palletteOffset().toString();
+    fieldUseDoub.checked = useDoub();
+    fieldJuliaX.value = juliaX().toString();
+    fieldJuliaY.value = juliaY().toString();
+    fieldMandelboxScale.value = mandelboxScale().toString();
+    fieldX.step = (0.1 * zoom()).toString();
+    fieldY.step = (0.1 * zoom()).toString();
+    fieldZoom.step = (0.1 * zoom()).toString();
     const patternInput = initBuffers(gl);
     const positionBuffer = patternInput[0];
     const colourBuffer = patternInput[1];
@@ -175,7 +202,7 @@ export function update() {
     const zoomUniform = uLoc("uZoom");
     const xcUniform = uLoc("xc");
     const ycUniform = uLoc("yc");
-    const palatteOffsetUniform = uLoc("uPalatteOffset");
+    const palletteOffsetUniform = uLoc("uPalletteOffset");
     const ratioUniform = uLoc("uRatio");
     const generatorUniform = uLoc("uGenerator");
     const mandelboxScaleUniform = uLoc("uMandelboxScale");
@@ -185,76 +212,84 @@ export function update() {
     const xcDoubUniform = uLoc("xcDoub");
     const ycDoubUniform = uLoc("ycDoub");
     const useDoubUniform = uLoc("uUseDoub");
-    const draw = (zoom_1, x_1, y_1, ratio) => {
-        resizeCanvas(gl.canvas);
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.useProgram(shaderProgram);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(vertexPositionAttr, 2, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
-        gl.vertexAttribPointer(textureCoordAttr, 2, gl.FLOAT, false, 0, 0);
-        gl.uniform1f(zoomUniform, zoom_1);
-        gl.uniform1f(xcUniform, x_1);
-        gl.uniform1f(ycUniform, y_1);
-        gl.uniform1f(palatteOffsetUniform, palatteOffset);
-        gl.uniform1f(ratioUniform, ratio);
-        gl.uniform1f(generatorUniform, generator);
-        gl.uniform1f(mandelboxScaleUniform, mandelboxScale);
-        gl.uniform1f(juliaXUniform, juliaX);
-        gl.uniform1f(juliaYUniform, juliaY);
-        gl.uniform2fv(zoomDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(zoom_1)));
-        gl.uniform2fv(xcDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(x_1)));
-        gl.uniform2fv(ycDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(y_1)));
-        gl.uniform1i(useDoubUniform, useDoub ? 1 : 0);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    };
-    draw(zoom, x, y, gl.canvas.width / gl.canvas.height);
+    resizeCanvas(gl.canvas);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.useProgram(shaderProgram);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(vertexPositionAttr, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
+    gl.vertexAttribPointer(textureCoordAttr, 2, gl.FLOAT, false, 0, 0);
+    const ratio = gl.canvas.width / gl.canvas.height;
+    gl.uniform1f(zoomUniform, zoom());
+    gl.uniform1f(xcUniform, x());
+    gl.uniform1f(ycUniform, y());
+    gl.uniform1f(palletteOffsetUniform, palletteOffset());
+    gl.uniform1f(ratioUniform, ratio);
+    gl.uniform1f(generatorUniform, generator());
+    gl.uniform1f(mandelboxScaleUniform, mandelboxScale());
+    gl.uniform1f(juliaXUniform, juliaX());
+    gl.uniform1f(juliaYUniform, juliaY());
+    gl.uniform2fv(zoomDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(zoom())));
+    gl.uniform2fv(xcDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(x())));
+    gl.uniform2fv(ycDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(y())));
+    gl.uniform1i(useDoubUniform, useDoub() ? 1 : 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.useProgram(shaderProgram);
 }
 
 update();
 
 fieldZoom.oninput = ((_arg1) => {
+    zoom(parse(fieldZoom.value), true);
     update();
 });
 
 fieldX.oninput = ((_arg2) => {
+    x(parse(fieldX.value), true);
     update();
 });
 
 fieldY.oninput = ((_arg3) => {
+    y(parse(fieldY.value), true);
     update();
 });
 
 fieldMandelboxScale.oninput = ((_arg4) => {
+    mandelboxScale(parse(fieldMandelboxScale.value), true);
     update();
 });
 
-fieldPalatteOffset.oninput = ((_arg5) => {
+fieldPalletteOffset.oninput = ((_arg5) => {
+    palletteOffset(parse(fieldPalletteOffset.value), true);
     update();
 });
 
 fieldJuliaX.oninput = ((_arg6) => {
+    juliaX(parse(fieldJuliaX.value), true);
     update();
 });
 
 fieldJuliaY.oninput = ((_arg7) => {
+    juliaY(parse(fieldJuliaY.value), true);
     update();
 });
 
 fieldMandelbrot.oninput = ((_arg8) => {
+    generator(1, true);
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
 });
 
 fieldJulia.oninput = ((_arg9) => {
+    generator(2, true);
     divJulia.hidden = false;
     divMandelbox.hidden = true;
     update();
 });
 
 fieldMandelbox.oninput = ((_arg10) => {
+    generator(3, true);
     divJulia.hidden = true;
     divMandelbox.hidden = false;
     update();
@@ -266,11 +301,14 @@ fieldJuliaPresets.oninput = ((_arg11) => {
         const juliaPresetCoords = juliaPresets[juliaPreset];
         fieldJuliaX.value = juliaPresetCoords[0].toString();
         fieldJuliaY.value = juliaPresetCoords[1].toString();
+        juliaX(juliaPresetCoords[0], true);
+        juliaY(juliaPresetCoords[1], true);
     }
     update();
 });
 
 fieldUseDoub.oninput = ((_arg12) => {
+    useDoub(fieldUseDoub.checked, true);
     update();
 });
 
@@ -279,7 +317,7 @@ export const keysDown = createAtom(empty({
 }));
 
 document.onkeydown = ((e) => {
-    const scale = 0.075;
+    let scale = 0.075;
     const matchValue = e.key;
     switch (matchValue) {
         case "w":
@@ -300,32 +338,32 @@ document.onkeydown = ((e) => {
             const key = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
             switch (key) {
                 case "w": {
-                    fieldY.value = (parse(fieldY.value) + (parse(fieldZoom.value) * scale)).toString();
+                    y(y() + (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "s": {
-                    fieldY.value = (parse(fieldY.value) - (parse(fieldZoom.value) * scale)).toString();
+                    y(y() - (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "a": {
-                    fieldX.value = (parse(fieldX.value) - (parse(fieldZoom.value) * scale)).toString();
+                    x(x() - (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "d": {
-                    fieldX.value = (parse(fieldX.value) + (parse(fieldZoom.value) * scale)).toString();
+                    x(x() + (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "q": {
-                    fieldZoom.value = (parse(fieldZoom.value) + (parse(fieldZoom.value) * scale)).toString();
+                    zoom(zoom() + (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "e": {
-                    fieldZoom.value = (parse(fieldZoom.value) - (parse(fieldZoom.value) * scale)).toString();
+                    zoom(zoom() - (zoom() * scale), true);
                     update();
                     break;
                 }
@@ -361,32 +399,32 @@ document.onkeyup = ((e) => {
             const key = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
             switch (key) {
                 case "w": {
-                    fieldY.value = (parse(fieldY.value) + (parse(fieldZoom.value) * scale)).toString();
+                    y(y() + (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "s": {
-                    fieldY.value = (parse(fieldY.value) - (parse(fieldZoom.value) * scale)).toString();
+                    y(y() - (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "a": {
-                    fieldX.value = (parse(fieldX.value) - (parse(fieldZoom.value) * scale)).toString();
+                    x(x() - (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "d": {
-                    fieldX.value = (parse(fieldX.value) + (parse(fieldZoom.value) * scale)).toString();
+                    x(x() + (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "q": {
-                    fieldZoom.value = (parse(fieldZoom.value) + (parse(fieldZoom.value) * scale)).toString();
+                    zoom(zoom() + (zoom() * scale), true);
                     update();
                     break;
                 }
                 case "e": {
-                    fieldZoom.value = (parse(fieldZoom.value) - (parse(fieldZoom.value) * scale)).toString();
+                    zoom(zoom() - (zoom() * scale), true);
                     update();
                     break;
                 }
@@ -405,22 +443,23 @@ buttonFullscreen.onclick = ((_arg1) => {
 });
 
 buttonCentre.onclick = ((_arg2) => {
-    fieldX.value = int32ToString(0);
-    fieldY.value = int32ToString(0);
+    x(0, true);
+    y(0, true);
     update();
 });
 
 buttonReset.onclick = ((_arg3) => {
-    fieldX.value = int32ToString(0);
-    fieldY.value = int32ToString(0);
-    fieldZoom.value = (2.5).toString();
-    fieldPalatteOffset.value = int32ToString(0);
-    fieldMandelboxScale.value = int32ToString(3);
-    fieldJuliaX.value = int32ToString(0);
-    fieldJuliaY.value = int32ToString(0);
+    x(0, true);
+    y(0, true);
+    zoom(2.5, true);
+    palletteOffset(0, true);
+    useDoub(false, true);
+    juliaX(0, true);
+    juliaY(0, true);
+    mandelboxScale(3, true);
+    generator(1, true);
     fieldJuliaPresets.value = int32ToString(-1);
     fieldMandelbrot.checked = true;
-    fieldUseDoub.checked = false;
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
@@ -438,7 +477,7 @@ buttonSaveImage.onclick = ((_arg4) => {
                 update();
                 const mode = fieldMandelbrot.checked ? "Mandelbrot" : (fieldJulia.checked ? "Julia" : "Mandelbox");
                 let fname;
-                const arg50 = fieldPalatteOffset.value;
+                const arg50 = fieldPalletteOffset.value;
                 const arg40 = fieldZoom.value;
                 const arg30 = fieldY.value;
                 const arg20 = fieldX.value;
