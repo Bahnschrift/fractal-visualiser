@@ -15,7 +15,7 @@ export const WIDTH = 1280;
 
 export const HEIGHT = 720;
 
-export const juliaPresets = [[0, 0.8], [0.37, 0.1], [0.355, 0.355], [-0.54, 0.54], [-0.4, -0.59], [0.34, -0.05], [-0.687, 0.312], [-0.673, 0.312], [0.355534, 0.337292]];
+export const juliaPresets = [[0, 0.8], [0.37, 0.1], [0.355, 0.355], [-0.54, 0.54], [-0.4, -0.59], [0.34, -0.05], [-0.687, 0.312], [-0.673, 0.312], [-0.75, -0.15], [0.355534, 0.337292]];
 
 export function getDivElement(id) {
     return document.querySelector(toText(printf("#%s"))(id));
