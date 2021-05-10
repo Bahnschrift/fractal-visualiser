@@ -265,6 +265,23 @@ let fsMandel = glsl """
         return MAX;
     }
 
+    float burningShip(float x, float y) {
+        if (pow(x + 1.0, 2.0) + y*y <= 0.0625) {
+            return MAX;
+        }
+
+        vec2 c = vec2(x, y);
+        vec2 z = c;
+
+        for (int i = 0; i <= int(MAX); i++) {
+            if (length(z) > 4096.) {
+                return float(i) - log2(log2(dot(z, z))) + 4.0;
+            }
+            z = vec2(z.x*z.x - z.y*z.y + c.x, abs(2.0*z.x*z.y) + c.y);
+        }
+        return MAX;
+    }
+
     float mandelbox(float x, float y) {
         vec2 c = vec2(x, y);
         vec2 z = c;
@@ -309,7 +326,9 @@ let fsMandel = glsl """
                 m = mandelbrotDoub(x, y);
             } else if (uGenerator == 2.0) {
                 m = juliaDoub(x, y);
-            }  else if (uGenerator == 3.0) {
+            } else if (uGenerator == 3.0) {
+                m = burningShip(x.x, y.x);
+            } else if (uGenerator == 4.0) {
                 m = mandelbox(x.x, y.x);
             } else {
                 gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.);
@@ -322,7 +341,9 @@ let fsMandel = glsl """
                 m = mandelbrot(x, y);
             } else if (uGenerator == 2.0) {
                 m = julia(x, y);
-            }  else if (uGenerator == 3.0) {
+            } else if (uGenerator == 3.0) {
+                m = burningShip(x, y);
+            } else if (uGenerator == 4.0) {
                 m = mandelbox(x, y);
             } else {
                 gl_FragColor = vec4(vTextureCoord.x, vTextureCoord.y, 0.0, 1.);
@@ -333,7 +354,7 @@ let fsMandel = glsl """
         // Colouring
         vec3 col = vec3(0., 0., 0.);
         if (m != MAX) {
-            if (uGenerator == 3.0) {  // Mandelbox
+            if (uGenerator == 4.0) {  // Mandelbox
                 m = mod(m + uPalletteOffset, 16.0);
                 col = getPalletteSmall(int(m));
             } else {

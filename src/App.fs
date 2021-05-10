@@ -37,6 +37,7 @@ let fieldY = getInputElement "y"
 let fieldPalletteOffset = getInputElement "palletteoffset"
 let fieldFractal = getInputElement "fractal"
 let fieldMandelbrot = getInputElement "mandelbrot"
+let fieldBurningShip = getInputElement "burningship"
 let fieldMandelbox = getInputElement "mandelbox"
 let fieldMandelboxScale = getInputElement "mandelboxscale"
 let fieldJulia = getInputElement "julia"
@@ -93,7 +94,8 @@ let setupCookies () =
             match cookieGenerator.Value with
             | "1" -> fieldMandelbrot.checked <- true
             | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false
-            | "3" -> fieldMandelbox.checked <- true; divMandelbox.hidden <- false
+            | "3" -> fieldBurningShip.checked <- true
+            | "4" -> fieldMandelbox.checked <- true; divMandelbox.hidden <- false
             | _ -> ()
             fieldMandelboxScale.value <- cookieMandelboxScale.Value
             fieldJuliaX.value <- cookieJuliaX.Value
@@ -120,7 +122,8 @@ let mutable palletteOffset = float fieldPalletteOffset.value
 let mutable generator = 
     if fieldMandelbrot.checked then 1  // 1: Mandelrot
     elif fieldJulia.checked then 2  // 2: Julia
-    elif fieldMandelbox.checked then 3  // 3: Mandelbox
+    elif fieldBurningShip.checked then 3
+    elif fieldMandelbox.checked then 4  // 3: Mandelbox
     else -1
 let mutable mandelboxScale = float fieldMandelboxScale.value
 let mutable juliaX = float fieldJuliaX.value
@@ -240,8 +243,13 @@ fieldJulia.oninput <- fun _ ->
     divJulia.hidden <- false
     divMandelbox.hidden <- true
     update()
-fieldMandelbox.oninput <- fun _ -> 
+fieldBurningShip.oninput <- fun _ ->
     generator <- 3
+    divMandelbox.hidden <- true
+    divJulia.hidden <- true
+    update()
+fieldMandelbox.oninput <- fun _ -> 
+    generator <- 4
     divJulia.hidden <- true
     divMandelbox.hidden <- false
     update()
@@ -354,6 +362,7 @@ buttonSaveImage.onclick <- fun _ ->
                 let mode = 
                     if fieldMandelbrot.checked then "Mandelbrot"
                     elif fieldJulia.checked then "Julia"
+                    elif fieldBurningShip.checked then "BurningShip"
                     else "Mandelbox"
                 let fname = sprintf "%s x=%s,y=%s,zoom=%s,offset=%s %sx%s.png" mode fieldX.value fieldY.value fieldZoom.value fieldPalletteOffset.value saveResWidth saveResHeight
                 let link = document.querySelector "#link" :?> HTMLLinkElement

@@ -45,6 +45,8 @@ export const fieldFractal = getInputElement("fractal");
 
 export const fieldMandelbrot = getInputElement("mandelbrot");
 
+export const fieldBurningShip = getInputElement("burningship");
+
 export const fieldMandelbox = getInputElement("mandelbox");
 
 export const fieldMandelboxScale = getInputElement("mandelboxscale");
@@ -111,6 +113,10 @@ export function setupCookies() {
                     break;
                 }
                 case "3": {
+                    fieldBurningShip.checked = true;
+                    break;
+                }
+                case "4": {
                     fieldMandelbox.checked = true;
                     divMandelbox.hidden = false;
                     break;
@@ -148,7 +154,7 @@ export const y = createAtom(parse(fieldY.value));
 
 export const palletteOffset = createAtom(parse(fieldPalletteOffset.value));
 
-export const generator = createAtom(fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldMandelbox.checked ? 3 : -1)));
+export const generator = createAtom(fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldBurningShip.checked ? 3 : (fieldMandelbox.checked ? 4 : -1))));
 
 export const mandelboxScale = createAtom(parse(fieldMandelboxScale.value));
 
@@ -316,14 +322,21 @@ fieldJulia.oninput = ((_arg9) => {
     update();
 });
 
-fieldMandelbox.oninput = ((_arg10) => {
+fieldBurningShip.oninput = ((_arg10) => {
     generator(3, true);
+    divMandelbox.hidden = true;
+    divJulia.hidden = true;
+    update();
+});
+
+fieldMandelbox.oninput = ((_arg11) => {
+    generator(4, true);
     divJulia.hidden = true;
     divMandelbox.hidden = false;
     update();
 });
 
-fieldJuliaPresets.oninput = ((_arg11) => {
+fieldJuliaPresets.oninput = ((_arg12) => {
     const juliaPreset = parse_1(fieldJuliaPresets.value, 511, false, 32) | 0;
     if (juliaPreset !== -1) {
         const juliaPresetCoords = juliaPresets[juliaPreset];
@@ -335,75 +348,75 @@ fieldJuliaPresets.oninput = ((_arg11) => {
     update();
 });
 
-fieldUseDoub.oninput = ((_arg12) => {
+fieldUseDoub.oninput = ((_arg13) => {
     useDoub(fieldUseDoub.checked, true);
     update();
 });
 
-fieldP1X.oninput = ((_arg13) => {
+fieldP1X.oninput = ((_arg14) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP1C.oninput = ((_arg14) => {
+fieldP1C.oninput = ((_arg15) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP2X.oninput = ((_arg15) => {
+fieldP2X.oninput = ((_arg16) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP2C.oninput = ((_arg16) => {
+fieldP2C.oninput = ((_arg17) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP3X.oninput = ((_arg17) => {
+fieldP3X.oninput = ((_arg18) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP3C.oninput = ((_arg18) => {
+fieldP3C.oninput = ((_arg19) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP4X.oninput = ((_arg19) => {
+fieldP4X.oninput = ((_arg20) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP4C.oninput = ((_arg20) => {
+fieldP4C.oninput = ((_arg21) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP5X.oninput = ((_arg21) => {
+fieldP5X.oninput = ((_arg22) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP5C.oninput = ((_arg22) => {
+fieldP5C.oninput = ((_arg23) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
@@ -593,7 +606,7 @@ buttonSaveImage.onclick = ((_arg6) => {
                 canv.height = parse(saveResHeight);
                 update();
                 update();
-                const mode = fieldMandelbrot.checked ? "Mandelbrot" : (fieldJulia.checked ? "Julia" : "Mandelbox");
+                const mode = fieldMandelbrot.checked ? "Mandelbrot" : (fieldJulia.checked ? "Julia" : (fieldBurningShip.checked ? "BurningShip" : "Mandelbox"));
                 let fname;
                 const arg50 = fieldPalletteOffset.value;
                 const arg40 = fieldZoom.value;
