@@ -26,6 +26,7 @@ let juliaPresets = [|
 |]
 
 let getDivElement id = sprintf "#%s" id |> document.querySelector :?> HTMLDivElement
+let divPallette = getDivElement "pallettemaker"
 let divMandelbox = getDivElement "settingsmandelbox"
 let divJulia = getDivElement "settingsjulia"
 
@@ -46,6 +47,7 @@ let fieldJuliaPresets = document.querySelector "#juliapresets" :?> HTMLSelectEle
 
 let getButtonElement id = sprintf "#%s" id |> document.querySelector :?> HTMLButtonElement
 let buttonFullscreen = getButtonElement "fullscreen"
+let buttonPallette = getButtonElement "pallettebutton"
 let buttonCentre = getButtonElement "centre"
 let buttonReset = getButtonElement "reset"
 let buttonSaveImage = getButtonElement "saveimage"
@@ -70,7 +72,17 @@ let setupCookies () =
         cookieMandelboxScale; 
         cookieJuliaX; 
         cookieJuliaY; 
-        cookieUseDoub
+        cookieUseDoub;
+        PalletteMaker.cookieP1X;
+        PalletteMaker.cookieP1C;
+        PalletteMaker.cookieP2X;
+        PalletteMaker.cookieP2C;
+        PalletteMaker.cookieP3X;
+        PalletteMaker.cookieP3C;
+        PalletteMaker.cookieP4X;
+        PalletteMaker.cookieP4C;
+        PalletteMaker.cookieP5X;
+        PalletteMaker.cookieP5C;
     |]
     if (Array.forall (fun (c: option<string>) -> not c.IsNone) cookies) then
         try  // Prevents sneaky people from meddling with my cookies
@@ -80,13 +92,23 @@ let setupCookies () =
             fieldPalletteOffset.value <- cookiePalletteOffset.Value
             match cookieGenerator.Value with
             | "1" -> fieldMandelbrot.checked <- true
-            | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false;
-            | "3" -> fieldMandelbox.checked <- true; divMandelbox.hidden <- false;
+            | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false
+            | "3" -> fieldMandelbox.checked <- true; divMandelbox.hidden <- false
             | _ -> ()
             fieldMandelboxScale.value <- cookieMandelboxScale.Value
             fieldJuliaX.value <- cookieJuliaX.Value
             fieldJuliaY.value <- cookieJuliaY.Value
             fieldUseDoub.checked <- if cookieJuliaY.Value = "true" then true else false
+            PalletteMaker.fieldP1X.value <- PalletteMaker.cookieP1X.Value
+            PalletteMaker.fieldP1C.value <- PalletteMaker.cookieP1C.Value
+            PalletteMaker.fieldP2X.value <- PalletteMaker.cookieP2X.Value
+            PalletteMaker.fieldP2C.value <- PalletteMaker.cookieP2C.Value
+            PalletteMaker.fieldP3X.value <- PalletteMaker.cookieP3X.Value
+            PalletteMaker.fieldP3C.value <- PalletteMaker.cookieP3C.Value
+            PalletteMaker.fieldP4X.value <- PalletteMaker.cookieP4X.Value
+            PalletteMaker.fieldP4C.value <- PalletteMaker.cookieP4C.Value
+            PalletteMaker.fieldP5X.value <- PalletteMaker.cookieP5X.Value
+            PalletteMaker.fieldP5C.value <- PalletteMaker.cookieP5C.Value
         with
         | _ -> ()
 setupCookies()
@@ -113,7 +135,10 @@ let gl = canv.getContext "webgl" :?> GL
 clear gl
 let shaderProgram = createShaderProgram gl vsMandel fsMandel
 
-let update() = 
+PalletteMaker.init()
+let mutable pallette = PalletteMaker.getColours 76
+
+let update () = 
     let resizeCanvas(canvas: HTMLCanvasElement) = 
         let displayWidth = canvas.clientWidth
         let displayHeight = canvas.clientHeight
@@ -166,6 +191,7 @@ let update() =
     let xcDoubUniform = uLoc "xcDoub"
     let ycDoubUniform = uLoc "ycDoub"
     let useDoubUniform = uLoc "uUseDoub"
+    let palletteUniform = uLoc "uPallette"
 
     resizeCanvas gl.canvas
     gl.viewport(0.0, 0.0, gl.canvas.width, gl.canvas.height)
@@ -190,6 +216,8 @@ let update() =
     gl.uniform2fv(xcDoubUniform, x |> SplitDouble.ofFloat |> SplitDouble.toUniform)
     gl.uniform2fv(ycDoubUniform, y |> SplitDouble.ofFloat |> SplitDouble.toUniform)
     gl.uniform1i(useDoubUniform, if useDoub then 1.0 else 0.0)
+
+    gl.uniform3fv(palletteUniform, pallette |> Array.map (fun (r, g, b) -> [|r; g; b|]) |> Array.concat |> Fable.Core.JS.Constructors.Float32Array.Create)
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0., 4.)
     gl.useProgram(shaderProgram)
@@ -228,6 +256,17 @@ fieldJuliaPresets.oninput <- fun _ ->
     update()
 fieldUseDoub.oninput <- fun _ -> useDoub <- fieldUseDoub.checked; update()
 
+PalletteMaker.fieldP1X.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP1C.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP2X.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP2C.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP3X.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP3C.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP4X.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP4C.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP5X.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+PalletteMaker.fieldP5C.oninput <- fun _ -> PalletteMaker.updatePoints(); PalletteMaker.drawPallette(); pallette <- PalletteMaker.getColours 76; update()
+
 // TODO: Fix this
 let mutable keysDown = Set.empty
 document.onkeydown <- fun e ->
@@ -262,6 +301,9 @@ document.onkeyup <- fun e ->
 buttonFullscreen.onclick <- fun _ ->
     canv.requestFullscreen()
 
+buttonPallette.onclick <- fun _ ->
+    divPallette.hidden <- not divPallette.hidden
+
 buttonCentre.onclick <- fun _ ->
     x <- 0.0
     y <- 0.0
@@ -281,6 +323,21 @@ buttonReset.onclick <- fun _ ->
     fieldMandelbrot.checked <- true
     divMandelbox.hidden <- true
     divJulia.hidden <- true
+    update()
+
+PalletteMaker.buttonResetPallette.onclick <- fun _ -> 
+    PalletteMaker.fieldP1X.value <- string 0.0
+    PalletteMaker.fieldP1C.value <- string "#000764"
+    PalletteMaker.fieldP2X.value <- string 0.16
+    PalletteMaker.fieldP2C.value <- string "#206bcb"
+    PalletteMaker.fieldP3X.value <- string 0.42
+    PalletteMaker.fieldP3C.value <- string "#edffff"
+    PalletteMaker.fieldP4X.value <- string 0.64
+    PalletteMaker.fieldP4C.value <- string "#ffaa00"
+    PalletteMaker.fieldP5X.value <- string 0.855
+    PalletteMaker.fieldP5C.value <- string "#000200"
+    PalletteMaker.init()
+    pallette <- PalletteMaker.getColours 76
     update()
 
 buttonSaveImage.onclick <- fun _ ->

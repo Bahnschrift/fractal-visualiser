@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xml:lang="en" xmlns= "http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta http-equiv="Content-Language" content="en">
     <head>
         <title>Fractal Visualiser</title>
         <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
@@ -79,13 +82,60 @@
             </div>
             <br>
             <button type="button" class="btn btn-outline-primary" id="fullscreen">Fullscreen</button>
+            <button type="button" class="btn btn-outline-primary" id="pallettebutton">Colours</button>
             <button type="button" class="btn btn-outline-primary" id="centre">Centre</button>
             <button type="button" class="btn btn-outline-primary" id="reset">Reset</button>
             <button type="button" class="btn btn-outline-primary" id="saveimage">Save</button>
         </div>
         <br>
+        <div class="container-fluid" id="pallettemaker" hidden>
+            <canvas id="pallettecanv" width="1000" height="400"></canvas>
+            <br>
+            <br>
+            <div class="row align-items-start">
+                <div class="col-1">
+                    <label for="p1x">Point 1: </label>
+                    <br>
+                    <input type="color" class="input-group-color" id="p1c" name="p1c" value="#000764"> 
+                    <input type="range" class="input-group-range" id="p1x" name="p1x" value="0.0" min="0.0" max="0.0" disabled>
+                </div>
+                <br>
+                <div class="col-1">
+                    <label for="p2x">Point 2: </label>
+                    <br>
+                    <input type="color" class="input-group-color" id="p2c" name="p2c" value="#206bcb"> 
+                    <input type="range" class="input-group-range" id="p2x" name="p2x" value="0.16" min="0" max="1" step="0.01">
+                </div>
+                <br>
+                <div class="col-1">
+                    <label for="p3x">Point 3: </label>
+                    <br>
+                    <input type="color" class="input-group-color" id="p3c" name="p3c" value="#edffff"> 
+                    <input type="range" class="input-group-range" id="p3x" name="p3x" value="0.42" min="0" max="1" step="0.01">
+                </div>
+                <br>
+                <div class="col-1">
+                    <label for="p4x">Point 4: </label>
+                    <br>
+                    <input type="color" class="input-group-color" id="p4c" name="p4c" value="#ffaa00"> 
+                    <input type="range" class="input-group-range" id="p4x" name="p4x" value="0.64" min="0" max="1" step="0.01">
+                </div>
+                <br>
+                <div class="col-1">
+                    <label for="p5x">Point 5: </label>
+                    <br>
+                    <input type="color" class="input-group-color" id="p5c" name="p5c" value="#000200"> 
+                    <input type="range" class="input-group-range" id="p5x" name="p5x" value="0.855" min="0" max="1" step="0.01">
+                </div>
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-primary" id="resetpallette">Reset</button>
+                </div>
+            </div>
+        </div>
+        <br>
         <div class="container-fluid" id="output">
-            <canvas class="border border-dark" id="canv" width="400" height="400"></canvas>
+            <canvas class="" id="canv" width="400" height="400"></canvas>
+            
         </div>
     </body>
     <script src="bundle.js"></script>
