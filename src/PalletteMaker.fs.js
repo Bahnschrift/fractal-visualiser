@@ -2,8 +2,9 @@ import { createAtom } from "./.fable/fable-library.3.1.1/Util.js";
 import { parse } from "./.fable/fable-library.3.1.1/Int32.js";
 import { findCookieValue } from "./Cookies.fs.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Double.js";
-import { append, pairwise, map } from "./.fable/fable-library.3.1.1/Array.js";
+import { append, map } from "./.fable/fable-library.3.1.1/Array.js";
 import { printf, toText } from "./.fable/fable-library.3.1.1/String.js";
+import { item, ofArray } from "./.fable/fable-library.3.1.1/List.js";
 import { rangeNumber, getEnumerator } from "./.fable/fable-library.3.1.1/Seq.js";
 
 export const WIDTH = 1250;
@@ -21,6 +22,40 @@ export function interpolateLinear(y1, y2, mu) {
 export function interpolateCosine(y1, y2, mu) {
     const mu2 = (1 - Math.cos(mu * 3.141592653589793)) / 2;
     return (y1 * (1 - mu2)) + (y2 * mu2);
+}
+
+export function interpolateCubic(y0, y1, y2, y3, mu) {
+    const mu2 = (mu * mu) | 0;
+    const a0 = (((y3 - y2) - y0) + y1) | 0;
+    const a1 = ((y0 - y1) - a0) | 0;
+    const a2 = (y2 - y0) | 0;
+    const a3 = y1 | 0;
+    return (((((a0 * mu) * mu2) + (a1 * mu2)) + (a2 * mu)) + a3) | 0;
+}
+
+export function interpolateCatmull(y0, y1, y2, y3, mu) {
+    const mu2 = mu * mu;
+    const a0 = (((-0.5 * y0) + (1.5 * y1)) - (1.5 * y2)) + (0.5 * y3);
+    const a1 = ((y0 - (2.5 * y1)) + (2 * y2)) - (0.5 * y3);
+    const a2 = (-0.5 * y0) + (0.5 * y2);
+    const a3 = y1;
+    return ((((a0 * mu) * mu2) + (a1 * mu2)) + (a2 * mu)) + a3;
+}
+
+const TENSION = 1;
+
+const BIAS = -0;
+
+export function interpolateHermite(y0, y1, y2, y3, mu) {
+    const mu2 = mu * mu;
+    const mu3 = mu2 * mu;
+    const m0 = ((((y1 - y0) * (1 + BIAS)) * (1 - TENSION)) / 2) + ((((y2 - y1) * (1 - BIAS)) * (1 - TENSION)) / 2);
+    const m1 = ((((y2 - y1) * (1 + BIAS)) * (1 - TENSION)) / 2) + ((((y3 - y2) * (1 - BIAS)) * (1 - TENSION)) / 2);
+    const a0 = ((2 * mu3) - (3 * mu2)) + 1;
+    const a1 = (mu3 - (2 * mu2)) + mu;
+    const a2 = mu3 - mu2;
+    const a3 = (-2 * mu3) + (3 * mu2);
+    return (((a0 * y1) + (a1 * m0)) + (a2 * m1)) + (a3 * y2);
 }
 
 export function hexToRGB(hex) {
@@ -142,47 +177,78 @@ canv.height = HEIGHT;
 
 export const ctx = canv.getContext('2d');
 
+const set$ = [ofArray([4, 0, 1, 2]), ofArray([0, 1, 2, 3]), ofArray([1, 2, 3, 4]), ofArray([2, 3, 4, 0]), ofArray([3, 4, 0, 1])];
+
+function getNeighbouring(x) {
+    let x_1;
+    let minpoint = 0;
+    while (x > (x_1 = scaledPoints()[minpoint + 1][0], x_1)) {
+        minpoint = (minpoint + 1);
+    }
+    if (minpoint === (scaledPoints().length - 1)) {
+        minpoint = (minpoint - 1);
+    }
+    const p = set$[minpoint];
+    const a = scaledPoints()[item(0, p)];
+    const b = scaledPoints()[item(1, p)];
+    let c_1;
+    if (minpoint < 4) {
+        c_1 = scaledPoints()[item(2, p)];
+    }
+    else {
+        const tupledArg_1 = scaledPoints()[item(2, p)];
+        const a_1 = tupledArg_1[0];
+        const b_1 = tupledArg_1[1];
+        const c = tupledArg_1[2];
+        const d = tupledArg_1[3];
+        c_1 = [a_1 + WIDTH, b_1, c, d];
+    }
+    const d_1 = scaledPoints()[item(3, p)];
+    return [a, b, c_1, d_1];
+}
+
 export function drawPallette() {
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    const arr = pairwise(scaledPoints());
-    for (let idx = 0; idx <= (arr.length - 1); idx++) {
-        const pair = arr[idx];
-        const p2x = pair[1][0];
-        const p2r = pair[1][1];
-        const p2g = pair[1][2];
-        const p2b = pair[1][3];
-        const p1x = pair[0][0];
-        const p1r = pair[0][1];
-        const p1g = pair[0][2];
-        const p1b = pair[0][3];
-        const enumerator = getEnumerator(rangeNumber(p1x, 1, p2x));
-        try {
-            while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
-                const x = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
-                const mul = (x - p1x) / (p2x - p1x);
-                const yInterpR = interpolateCosine(p1r, p2r, mul);
-                const yInterpG = interpolateCosine(p1g, p2g, mul);
-                const yInterpB = interpolateCosine(p1b, p2b, mul);
-                const arg30 = (yInterpB / HEIGHT) * 255;
-                const arg20 = (yInterpG / HEIGHT) * 255;
-                const arg10 = (yInterpR / HEIGHT) * 255;
-                ctx.fillStyle = toText(printf("rgb(%f, %f, %f)"))(arg10)(arg20)(arg30);
-                ctx.fillRect(x, 0, 1, HEIGHT);
-                ctx.fillStyle = "rgb(255, 0, 0)";
-                ctx.fillRect(x, (HEIGHT - yInterpR) - 1, 1, 1);
-                ctx.fillStyle = "rgb(0, 255, 0)";
-                ctx.fillRect(x, (HEIGHT - yInterpG) - 1, 1, 1);
-                ctx.fillStyle = "rgb(0, 0, 255)";
-                ctx.fillRect(x, (HEIGHT - yInterpB) - 1, 1, 1);
-            }
-        }
-        finally {
-            enumerator.Dispose();
+    const enumerator = getEnumerator(rangeNumber(0, 1, WIDTH));
+    try {
+        while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
+            const x = enumerator["System.Collections.Generic.IEnumerator`1.get_Current"]();
+            const patternInput = getNeighbouring(x);
+            const p3r = patternInput[3][1];
+            const p3g = patternInput[3][2];
+            const p3b = patternInput[3][3];
+            const p2x = patternInput[2][0];
+            const p2r = patternInput[2][1];
+            const p2g = patternInput[2][2];
+            const p2b = patternInput[2][3];
+            const p1x = patternInput[1][0];
+            const p1r = patternInput[1][1];
+            const p1g = patternInput[1][2];
+            const p1b = patternInput[1][3];
+            const p0r = patternInput[0][1];
+            const p0g = patternInput[0][2];
+            const p0b = patternInput[0][3];
+            const mul = (x - p1x) / (p2x - p1x);
+            const yInterpR = interpolateHermite(p0r, p1r, p2r, p3r, mul);
+            const yInterpG = interpolateHermite(p0g, p1g, p2g, p3g, mul);
+            const yInterpB = interpolateHermite(p0b, p1b, p2b, p3b, mul);
+            const arg30 = (yInterpB / HEIGHT) * 255;
+            const arg20 = (yInterpG / HEIGHT) * 255;
+            const arg10 = (yInterpR / HEIGHT) * 255;
+            ctx.fillStyle = toText(printf("rgb(%f, %f, %f)"))(arg10)(arg20)(arg30);
+            ctx.fillRect(x, 0, 1, HEIGHT);
+            ctx.fillStyle = "rgb(255, 0, 0)";
+            ctx.fillRect(x, (HEIGHT - yInterpR) - 1, 1, 1);
+            ctx.fillStyle = "rgb(0, 255, 0)";
+            ctx.fillRect(x, (HEIGHT - yInterpG) - 1, 1, 1);
+            ctx.fillStyle = "rgb(0, 0, 255)";
+            ctx.fillRect(x, (HEIGHT - yInterpB) - 1, 1, 1);
         }
     }
-    for (let idx_1 = 0; idx_1 <= (scaledPoints().length - 1); idx_1++) {
-        const point = scaledPoints()[idx_1];
+    finally {
+        enumerator.Dispose();
+    }
+    for (let idx = 0; idx <= (scaledPoints().length - 1); idx++) {
+        const point = scaledPoints()[idx];
         const x_1 = point[0];
         const r = point[1];
         const g = point[2];
@@ -197,28 +263,25 @@ export function drawPallette() {
 }
 
 export function getColour(x) {
-    let x_1;
-    let minpoint = 0;
-    while (x > (x_1 = scaledPoints()[minpoint + 1][0], x_1)) {
-        minpoint = (minpoint + 1);
-    }
-    if (minpoint === (scaledPoints().length - 1)) {
-        minpoint = (minpoint - 1);
-    }
-    const patternInput = scaledPoints()[minpoint];
-    const p1x = patternInput[0];
-    const p1r = patternInput[1];
-    const p1g = patternInput[2];
-    const p1b = patternInput[3];
-    const patternInput_1 = scaledPoints()[minpoint + 1];
-    const p2x = patternInput_1[0];
-    const p2r = patternInput_1[1];
-    const p2g = patternInput_1[2];
-    const p2b = patternInput_1[3];
+    const patternInput = getNeighbouring(x);
+    const p3r = patternInput[3][1];
+    const p3g = patternInput[3][2];
+    const p3b = patternInput[3][3];
+    const p2x = patternInput[2][0];
+    const p2r = patternInput[2][1];
+    const p2g = patternInput[2][2];
+    const p2b = patternInput[2][3];
+    const p1x = patternInput[1][0];
+    const p1r = patternInput[1][1];
+    const p1g = patternInput[1][2];
+    const p1b = patternInput[1][3];
+    const p0r = patternInput[0][1];
+    const p0g = patternInput[0][2];
+    const p0b = patternInput[0][3];
     const mul = (x - p1x) / (p2x - p1x);
-    const yInterpR = (interpolateCosine(p1r, p2r, mul) / HEIGHT) * 255;
-    const yInterpG = (interpolateCosine(p1g, p2g, mul) / HEIGHT) * 255;
-    const yInterpB = (interpolateCosine(p1b, p2b, mul) / HEIGHT) * 255;
+    const yInterpR = (interpolateHermite(p0r, p1r, p2r, p3r, mul) / HEIGHT) * 255;
+    const yInterpG = (interpolateHermite(p0g, p1g, p2g, p3g, mul) / HEIGHT) * 255;
+    const yInterpB = (interpolateHermite(p0b, p1b, p2b, p3b, mul) / HEIGHT) * 255;
     return [yInterpR, yInterpG, yInterpB];
 }
 

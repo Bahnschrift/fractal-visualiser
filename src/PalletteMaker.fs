@@ -20,6 +20,36 @@ let interpolateCosine y1 y2 mu =
     let mu2 = (1.0 - Math.Cos(mu * Math.PI)) / 2.0
     y1 * (1.0 - mu2) + y2 * mu2
 
+let interpolateCubic y0 y1 y2 y3 mu = 
+    let mu2 = mu * mu
+    let a0 = y3 - y2 - y0 + y1
+    let a1 = y0 - y1 - a0
+    let a2 = y2 - y0
+    let a3 = y1
+    (a0 * mu * mu2) + (a1 * mu2) + (a2 * mu) + (a3)
+
+let interpolateCatmull y0 y1 y2 y3 mu = 
+    let mu2 = mu * mu
+    let a0 = -0.5 * y0 + 1.5 * y1 - 1.5 * y2 + 0.5 * y3
+    let a1 = y0 - 2.5 * y1 + 2.0 * y2 - 0.5 * y3
+    let a2 = -0.5 * y0 + 0.5 * y2
+    let a3 = y1
+    (a0 * mu * mu2) + (a1 * mu2) + (a2 * mu) + (a3)
+
+let private TENSION = 1.0 // -1 <= TENSION <= 1
+let private BIAS = -0.0
+let interpolateHermite y0 y1 y2 y3 mu = 
+    let mu2 = mu * mu
+    let mu3 = mu2 * mu
+    let m0 = (y1 - y0) * (1.0 + BIAS) * (1.0 - TENSION) / 2.0 + (y2 - y1) * (1.0 - BIAS) * (1.0 - TENSION) / 2.0
+    let m1 = (y2 - y1) * (1.0 + BIAS) * (1.0 - TENSION) / 2.0 + (y3 - y2) * (1.0 - BIAS) * (1.0 - TENSION) / 2.0
+    let a0 = 2.0 * mu3 - 3.0 * mu2 + 1.0
+    let a1 = mu3 - 2.0 * mu2 + mu
+    let a2 = mu3 - mu2
+    let a3 = -2.0 * mu3 + 3.0 * mu2
+    (a0 * y1) + (a1 * m0) + (a2 * m1) + (a3 * y2)
+
+
 let hexToRGB (hex: string): float * float * float = 
     let mutable hex = hex
     if hex.[0] = '#' then
@@ -92,27 +122,36 @@ canv.width <- WIDTH
 canv.height <- HEIGHT
 let ctx = canv.getContext_2d()
 
+let private set = [|[4; 0; 1; 2]; [0; 1; 2; 3]; [1; 2; 3; 4]; [2; 3; 4; 0]; [3; 4; 0; 1];|]
+let private getNeighbouring x = 
+    let mutable minpoint = 0
+    while x > (scaledPoints.[minpoint + 1] |> fun (x, _, _, _) -> x) do
+        minpoint <- minpoint + 1
+    if minpoint = scaledPoints.Length - 1 then
+        minpoint <- minpoint - 1
+    let p = set.[minpoint]
+    let a = scaledPoints.[p.[0]]
+    let b = scaledPoints.[p.[1]]
+    let c = if minpoint < 4 then scaledPoints.[p.[2]] else scaledPoints.[p.[2]] |> fun (a, b, c, d) -> (a + WIDTH, b, c, d)
+    let d = scaledPoints.[p.[3]]
+    a, b, c, d
+
 let drawPallette () = 
+    for x in {0.0 .. WIDTH} do
+        let ((_, p0r, p0g, p0b), (p1x, p1r, p1g, p1b),  (p2x, p2r, p2g, p2b), (_, p3r, p3g, p3b)) = getNeighbouring x
+        let mul = (x - p1x) / (p2x - p1x)
+        let yInterpR = interpolateHermite p0r p1r p2r p3r mul
+        let yInterpG = interpolateHermite p0g p1g p2g p3g mul
+        let yInterpB = interpolateHermite p0b p1b p2b p3b mul
+        ctx.fillStyle <- !^ (sprintf "rgb(%f, %f, %f)" (yInterpR / HEIGHT * 255.0) (yInterpG / HEIGHT * 255.0) (yInterpB / HEIGHT * 255.0))
+        ctx.fillRect(x, 0.0, 1.0, HEIGHT)
 
-    ctx.fillStyle <- !^ "#FFFFFF"
-    ctx.fillRect(0.0, 0.0, WIDTH, HEIGHT)
-    for pair in scaledPoints |> Array.pairwise do
-        let ((p1x, p1r, p1g, p1b), (p2x, p2r, p2g, p2b)) = pair
-        for x in {p1x .. p2x} do
-            let mul = (x - p1x) / (p2x - p1x)
-            let yInterpR = interpolateCosine p1r p2r mul
-            let yInterpG = interpolateCosine p1g p2g mul
-            let yInterpB = interpolateCosine p1b p2b mul
-
-            ctx.fillStyle <- !^ (sprintf "rgb(%f, %f, %f)" (yInterpR / HEIGHT * 255.0) (yInterpG / HEIGHT * 255.0) (yInterpB / HEIGHT * 255.0))
-            ctx.fillRect(x, 0.0, 1.0, HEIGHT)
-
-            ctx.fillStyle <- !^ "rgb(255, 0, 0)"
-            ctx.fillRect(x, HEIGHT - yInterpR - 1.0, 1.0, 1.0)
-            ctx.fillStyle <- !^ "rgb(0, 255, 0)"
-            ctx.fillRect(x, HEIGHT - yInterpG - 1.0, 1.0, 1.0)
-            ctx.fillStyle <- !^ "rgb(0, 0, 255)"
-            ctx.fillRect(x, HEIGHT - yInterpB - 1.0, 1.0, 1.0)
+        ctx.fillStyle <- !^ "rgb(255, 0, 0)"
+        ctx.fillRect(x, HEIGHT - yInterpR - 1.0, 1.0, 1.0)
+        ctx.fillStyle <- !^ "rgb(0, 255, 0)"
+        ctx.fillRect(x, HEIGHT - yInterpG - 1.0, 1.0, 1.0)
+        ctx.fillStyle <- !^ "rgb(0, 0, 255)"
+        ctx.fillRect(x, HEIGHT - yInterpB - 1.0, 1.0, 1.0)
 
     for point in scaledPoints do
         let (x, r, g, b) = point
@@ -124,17 +163,11 @@ let drawPallette () =
         ctx.fillRect(x - 3.0, HEIGHT - b - 3.0, 5.0, 5.0)
 
 let getColour (x: float): float * float * float = 
-    let mutable minpoint = 0
-    while x > (scaledPoints.[minpoint + 1] |> fun (x, _, _, _) -> x) do
-        minpoint <- minpoint + 1
-    if minpoint = scaledPoints.Length - 1 then
-        minpoint <- minpoint - 1
-    let (p1x, p1r, p1g, p1b) = scaledPoints.[minpoint]
-    let (p2x, p2r, p2g, p2b) = scaledPoints.[minpoint + 1]
+    let ((_, p0r, p0g, p0b), (p1x, p1r, p1g, p1b),  (p2x, p2r, p2g, p2b), (_, p3r, p3g, p3b)) = getNeighbouring x
     let mul = (x - p1x) / (p2x - p1x)
-    let yInterpR = (interpolateCosine p1r p2r mul) / HEIGHT * 255.0
-    let yInterpG = (interpolateCosine p1g p2g mul) / HEIGHT * 255.0
-    let yInterpB = (interpolateCosine p1b p2b mul) / HEIGHT * 255.0
+    let yInterpR = (interpolateHermite p0r p1r p2r p3r mul) / HEIGHT * 255.0
+    let yInterpG = (interpolateHermite p0g p1g p2g p3g mul) / HEIGHT * 255.0
+    let yInterpB = (interpolateHermite p0b p1b p2b p3b mul) / HEIGHT * 255.0
     (yInterpR, yInterpG, yInterpB)
 
 let getColours (n: int): (float * float * float)[] =
