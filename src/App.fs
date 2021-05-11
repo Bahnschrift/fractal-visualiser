@@ -225,9 +225,9 @@ let update () =
     gl.uniform1f(mandelboxScaleUniform, mandelboxScale)
     gl.uniform1f(juliaXUniform, juliaX)
     gl.uniform1f(juliaYUniform, juliaY)
-    gl.uniform2fv(zoomDoubUniform, zoom |> SplitDouble.ofFloat |> SplitDouble.toUniform)
-    gl.uniform2fv(xcDoubUniform, x |> SplitDouble.ofFloat |> SplitDouble.toUniform)
-    gl.uniform2fv(ycDoubUniform, y |> SplitDouble.ofFloat |> SplitDouble.toUniform)
+    // gl.uniform2fv(zoomDoubUniform, zoom |> SplitDouble.ofFloat |> SplitDouble.toUniform)
+    // gl.uniform2fv(xcDoubUniform, x |> SplitDouble.ofFloat |> SplitDouble.toUniform)
+    // gl.uniform2fv(ycDoubUniform, y |> SplitDouble.ofFloat |> SplitDouble.toUniform)
     gl.uniform1i(useDoubUniform, if useDoub then 1.0 else 0.0)
 
     gl.uniform3fv(palletteUniform, pallette |> Array.map (fun (r, g, b) -> [|r; g; b|]) |> Array.concat |> Fable.Core.JS.Constructors.Float32Array.Create)

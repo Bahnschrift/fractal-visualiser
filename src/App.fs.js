@@ -6,7 +6,6 @@ import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-lib
 import { parse } from "./.fable/fable-library.3.1.1/Double.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
-import { SplitDouble_ofFloat_5E38073B, SplitDouble_toUniform_189C8C6F } from "./DoublePrecision.fs.js";
 import { map, concat } from "./.fable/fable-library.3.1.1/Array.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Int32.js";
 import { FSharpSet__Remove, FSharpSet__Add, empty } from "./.fable/fable-library.3.1.1/Set.js";
@@ -191,7 +190,7 @@ init();
 export const pallette = createAtom(getColours(76));
 
 export function update() {
-    let arg00_6;
+    let arg00;
     const resizeCanvas = (canvas) => {
         const displayWidth = canvas.clientWidth;
         const displayHeight = canvas.clientHeight;
@@ -272,16 +271,13 @@ export function update() {
     gl.uniform1f(mandelboxScaleUniform, mandelboxScale());
     gl.uniform1f(juliaXUniform, juliaX());
     gl.uniform1f(juliaYUniform, juliaY());
-    gl.uniform2fv(zoomDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(zoom())));
-    gl.uniform2fv(xcDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(x())));
-    gl.uniform2fv(ycDoubUniform, SplitDouble_toUniform_189C8C6F(SplitDouble_ofFloat_5E38073B(y())));
     gl.uniform1i(useDoubUniform, useDoub() ? 1 : 0);
-    gl.uniform3fv(palletteUniform, (arg00_6 = concat(map((tupledArg) => {
+    gl.uniform3fv(palletteUniform, (arg00 = concat(map((tupledArg) => {
         const r = tupledArg[0];
         const g = tupledArg[1];
         const b = tupledArg[2];
         return new Float64Array([r, g, b]);
-    }, pallette()), Float64Array), new Float32Array(arg00_6)));
+    }, pallette()), Float64Array), new Float32Array(arg00)));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.useProgram(shaderProgram);
 }

@@ -204,30 +204,26 @@ let fsMandel = glsl """
         return doubAddDoub(doubMulDoub(x, x), doubMulDoub(y, y));
     }
 
-    const int MAXPOWER = 12;
-    vec2 compPower(vec2 z) {
+    vec2 compPower(vec2 z, float n) {
         return vec2(
-            pow(z.x * z.x + z.y * z.y, uMandelbrotPower / 2.0) * cos(uMandelbrotPower * atan(z.y, z.x)),
-            pow(z.x * z.x + z.y * z.y, uMandelbrotPower / 2.0) * sin(uMandelbrotPower * atan(z.y, z.x))
+            pow(z.x * z.x + z.y * z.y, n / 2.0) * cos(n * atan(z.y, z.x)),
+            pow(z.x * z.x + z.y * z.y, n / 2.0) * sin(n * atan(z.y, z.x))
         );
     }
 
     float mandelbrot(float x, float y) {
-        // if (pow(x + 1.0, 2.0) + y*y <= 0.0625) {
-        //     return MAX;
-        // }
-
         vec2 c = vec2(x, y);
         vec2 z = c;
 
         for (int i = 0; i <= int(MAX); i++) {
             if (length(z) > sqrt(8.0)) {
-                return float(i) - log2(log2(dot(z, z))) + 4.0;
+                float l = log(abs(uMandelbrotPower));
+                return float(i) - log(log(dot(z, z)) / l) / l + 4.0;
             }
             if (uMandelbrotPower == 2.0) {
                 z = vec2(z.x*z.x - z.y*z.y + c.x, 2.0*z.x*z.y + c.y);
             } else {
-                z = compPower(z) + c;
+                z = compPower(z, uMandelbrotPower) + c;
             }
         }
         return MAX;
@@ -324,7 +320,6 @@ let fsMandel = glsl """
     }
 
     void main() {
-        // gl_FragColor = vec4(uPallette[0].x, 0.0, 0.0, 1.0);
         bool useDoub = uUseDoub == 1 ? true : false;
         
         float m = 0.0;
