@@ -27,6 +27,7 @@ let juliaPresets = [|
 
 let getDivElement id = sprintf "#%s" id |> document.querySelector :?> HTMLDivElement
 let divPallette = getDivElement "pallettemaker"
+let divMandelbrot = getDivElement "settingsmandelbrot"
 let divMandelbox = getDivElement "settingsmandelbox"
 let divJulia = getDivElement "settingsjulia"
 
@@ -39,6 +40,7 @@ let fieldFractal = getInputElement "fractal"
 let fieldMandelbrot = getInputElement "mandelbrot"
 let fieldBurningShip = getInputElement "burningship"
 let fieldMandelbox = getInputElement "mandelbox"
+let fieldMandelbrotPower = getInputElement "mandelbrotpower"
 let fieldMandelboxScale = getInputElement "mandelboxscale"
 let fieldJulia = getInputElement "julia"
 let fieldJuliaX = getInputElement "juliax"
@@ -58,6 +60,7 @@ let cookieY = findCookieValue "y"
 let cookieZoom = findCookieValue "zoom"
 let cookiePalletteOffset = findCookieValue "palletteoffset"
 let cookieGenerator = findCookieValue "generator"
+let cookieMandelbrotPower = findCookieValue "mandelbrotpower"
 let cookieMandelboxScale = findCookieValue "mandelboxscale"
 let cookieJuliaX = findCookieValue "jx"
 let cookieJuliaY = findCookieValue "jy"
@@ -70,6 +73,7 @@ let setupCookies () =
         cookieZoom; 
         cookiePalletteOffset; 
         cookieGenerator; 
+        cookieMandelbrotPower;
         cookieMandelboxScale; 
         cookieJuliaX; 
         cookieJuliaY; 
@@ -92,11 +96,12 @@ let setupCookies () =
             fieldZoom.value <- cookieZoom.Value
             fieldPalletteOffset.value <- cookiePalletteOffset.Value
             match cookieGenerator.Value with
-            | "1" -> fieldMandelbrot.checked <- true
+            | "1" -> fieldMandelbrot.checked <- true; divMandelbrot.hidden <- false
             | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false
             | "3" -> fieldBurningShip.checked <- true
             | "4" -> fieldMandelbox.checked <- true; divMandelbox.hidden <- false
             | _ -> ()
+            fieldMandelbrotPower.value <- cookieMandelbrotPower.Value
             fieldMandelboxScale.value <- cookieMandelboxScale.Value
             fieldJuliaX.value <- cookieJuliaX.Value
             fieldJuliaY.value <- cookieJuliaY.Value
@@ -125,6 +130,7 @@ let mutable generator =
     elif fieldBurningShip.checked then 3
     elif fieldMandelbox.checked then 4  // 3: Mandelbox
     else -1
+let mutable mandelbrotPower = float fieldMandelbrotPower.value
 let mutable mandelboxScale = float fieldMandelboxScale.value
 let mutable juliaX = float fieldJuliaX.value
 let mutable juliaY = float fieldJuliaY.value
@@ -157,6 +163,7 @@ let update () =
     document.cookie <- sprintf "y=%f;" y
     document.cookie <- sprintf "palletteoffset=%f" palletteOffset
     document.cookie <- sprintf "generator=%i" generator
+    document.cookie <- sprintf "mandelbrotpower=%f" mandelbrotPower
     document.cookie <- sprintf "mandelboxscale=%f" mandelboxScale
     document.cookie <- sprintf "jx=%f" juliaX
     document.cookie <- sprintf "jy=%f" juliaY
@@ -167,6 +174,7 @@ let update () =
     fieldZoom.value <- string zoom
     fieldPalletteOffset.value <- string palletteOffset
     fieldUseDoub.checked <- useDoub
+    fieldMandelbrotPower.value <- string mandelbrotPower
     fieldJuliaX.value <- string juliaX
     fieldJuliaY.value <- string juliaY
     fieldMandelboxScale.value <- string mandelboxScale
@@ -187,6 +195,7 @@ let update () =
     let palletteOffsetUniform = uLoc "uPalletteOffset"
     let ratioUniform = uLoc "uRatio"
     let generatorUniform = uLoc "uGenerator"
+    let mandelbrotPowerUniform = uLoc "uMandelbrotPower"
     let mandelboxScaleUniform = uLoc "uMandelboxScale"
     let juliaXUniform = uLoc "uJuliaX"
     let juliaYUniform = uLoc "uJuliaY"
@@ -212,6 +221,7 @@ let update () =
     gl.uniform1f(palletteOffsetUniform, palletteOffset)
     gl.uniform1f(ratioUniform, ratio)
     gl.uniform1f(generatorUniform, float generator)
+    gl.uniform1f(mandelbrotPowerUniform, mandelbrotPower)
     gl.uniform1f(mandelboxScaleUniform, mandelboxScale)
     gl.uniform1f(juliaXUniform, juliaX)
     gl.uniform1f(juliaYUniform, juliaY)
@@ -229,27 +239,32 @@ update()
 fieldZoom.oninput <- fun _ -> zoom <- float fieldZoom.value; update()
 fieldX.oninput <- fun _ -> x <- float fieldX.value; update()
 fieldY.oninput <- fun _ -> y <- float fieldY.value; update()
+fieldMandelbrotPower.oninput <- fun _ -> mandelbrotPower <- float fieldMandelbrotPower.value; update()
 fieldMandelboxScale.oninput <- fun _ -> mandelboxScale <- float fieldMandelboxScale.value; update()
 fieldPalletteOffset.oninput <- fun _ -> palletteOffset <- float fieldPalletteOffset.value; update()
 fieldJuliaX.oninput <- fun _ -> juliaX <- float fieldJuliaX.value; update()
 fieldJuliaY.oninput <- fun _ -> juliaY <- float fieldJuliaY.value; update()
 fieldMandelbrot.oninput <- fun _ -> 
     generator <- 1
+    divMandelbrot.hidden <- false
     divMandelbox.hidden <- true
     divJulia.hidden <- true
     update()
 fieldJulia.oninput <- fun _ -> 
     generator <- 2
+    divMandelbrot.hidden <- true
     divJulia.hidden <- false
     divMandelbox.hidden <- true
     update()
 fieldBurningShip.oninput <- fun _ ->
     generator <- 3
+    divMandelbrot.hidden <- true
     divMandelbox.hidden <- true
     divJulia.hidden <- true
     update()
 fieldMandelbox.oninput <- fun _ -> 
     generator <- 4
+    divMandelbrot.hidden <- true
     divJulia.hidden <- true
     divMandelbox.hidden <- false
     update()
@@ -325,10 +340,12 @@ buttonReset.onclick <- fun _ ->
     useDoub <- false
     juliaX <- 0.0
     juliaY <- 0.0
+    mandelbrotPower <- 2.0
     mandelboxScale <- 3.0
     generator <- 1
     fieldJuliaPresets.value <- string -1
     fieldMandelbrot.checked <- true
+    divMandelbrot.hidden <- false
     divMandelbox.hidden <- true
     divJulia.hidden <- true
     update()

@@ -41,7 +41,7 @@
                     <input type="range" class="form-range" min="0" max="75" value="0" step="1" id="palletteoffset">
                     <br>
                     <div class="form-check form-switch">
-                        <input type="checkbox" class="form-check-input" id="usedoub">
+                        <input type="checkbox" class="form-check-input" id="usedoub" disabled>
                         <label class="form-check-label" for="usedoub">Use Double Precision</label>
                     </div>
                 </div>
@@ -53,6 +53,11 @@
                     <input type="number" class="input-group-text" id="y" name="y" value="0.0" min="-1" max="1" step="0.1">
                     <label for="zoom" class="form-label">Zoom:</label>
                     <input type="number" class="input-group-text" id="zoom" name="zoom" value="2.5" min="0" max="5" step="0.1">
+                </div>
+                <div class="col-2" id="settingsmandelbrot">
+                    <h3>Mandelbrot</h3>
+                    <label for="mandelbrotpower" class="form-label">Coefficient:</label>
+                    <input type="number" class="input-group-text" id="mandelbrotpower" name="mandelbrotpower" value="2" min="2" max="11" step="1">
                 </div>
                 <div class="col-2" id="settingsjulia" hidden>
                     <h3>Julia Set</h3>

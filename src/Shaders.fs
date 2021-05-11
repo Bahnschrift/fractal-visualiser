@@ -28,6 +28,7 @@ let fsMandel = glsl """
     uniform float uPalletteOffset;
     uniform float uRatio;
     uniform float uGenerator;
+    uniform float uMandelbrotPower;
     uniform float uMandelboxScale;
     uniform float uJuliaX;
     uniform float uJuliaY;
@@ -203,19 +204,31 @@ let fsMandel = glsl """
         return doubAddDoub(doubMulDoub(x, x), doubMulDoub(y, y));
     }
 
+    const int MAXPOWER = 12;
+    vec2 compPower(vec2 z) {
+        return vec2(
+            pow(z.x * z.x + z.y * z.y, uMandelbrotPower / 2.0) * cos(uMandelbrotPower * atan(z.y, z.x)),
+            pow(z.x * z.x + z.y * z.y, uMandelbrotPower / 2.0) * sin(uMandelbrotPower * atan(z.y, z.x))
+        );
+    }
+
     float mandelbrot(float x, float y) {
-        if (pow(x + 1.0, 2.0) + y*y <= 0.0625) {
-            return MAX;
-        }
+        // if (pow(x + 1.0, 2.0) + y*y <= 0.0625) {
+        //     return MAX;
+        // }
 
         vec2 c = vec2(x, y);
         vec2 z = c;
 
         for (int i = 0; i <= int(MAX); i++) {
-            if (length(z) > 4096.) {
+            if (length(z) > sqrt(8.0)) {
                 return float(i) - log2(log2(dot(z, z))) + 4.0;
             }
-            z = vec2(z.x*z.x - z.y*z.y + c.x, 2.0*z.x*z.y + c.y);
+            if (uMandelbrotPower == 2.0) {
+                z = vec2(z.x*z.x - z.y*z.y + c.x, 2.0*z.x*z.y + c.y);
+            } else {
+                z = compPower(z) + c;
+            }
         }
         return MAX;
     }
@@ -266,11 +279,7 @@ let fsMandel = glsl """
     }
 
     float burningShip(float x, float y) {
-        if (pow(x + 1.0, 2.0) + y*y <= 0.0625) {
-            return MAX;
-        }
-
-        vec2 c = vec2(x, y);
+        vec2 c = vec2(x, -y);
         vec2 z = c;
 
         for (int i = 0; i <= int(MAX); i++) {

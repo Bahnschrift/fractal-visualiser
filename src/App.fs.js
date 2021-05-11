@@ -25,6 +25,8 @@ export function getDivElement(id) {
 
 export const divPallette = getDivElement("pallettemaker");
 
+export const divMandelbrot = getDivElement("settingsmandelbrot");
+
 export const divMandelbox = getDivElement("settingsmandelbox");
 
 export const divJulia = getDivElement("settingsjulia");
@@ -48,6 +50,8 @@ export const fieldMandelbrot = getInputElement("mandelbrot");
 export const fieldBurningShip = getInputElement("burningship");
 
 export const fieldMandelbox = getInputElement("mandelbox");
+
+export const fieldMandelbrotPower = getInputElement("mandelbrotpower");
 
 export const fieldMandelboxScale = getInputElement("mandelboxscale");
 
@@ -85,6 +89,8 @@ export const cookiePalletteOffset = findCookieValue("palletteoffset");
 
 export const cookieGenerator = findCookieValue("generator");
 
+export const cookieMandelbrotPower = findCookieValue("mandelbrotpower");
+
 export const cookieMandelboxScale = findCookieValue("mandelboxscale");
 
 export const cookieJuliaX = findCookieValue("jx");
@@ -94,7 +100,7 @@ export const cookieJuliaY = findCookieValue("jy");
 export const cookieUseDoub = findCookieValue("usedoub");
 
 export function setupCookies() {
-    const cookies = [cookieX, cookieY, cookieZoom, cookiePalletteOffset, cookieGenerator, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C];
+    const cookies = [cookieX, cookieY, cookieZoom, cookiePalletteOffset, cookieGenerator, cookieMandelbrotPower, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C];
     if (cookies.every((c) => (!(c == null)))) {
         try {
             fieldX.value = value_3(cookieX);
@@ -105,6 +111,7 @@ export function setupCookies() {
             switch (matchValue) {
                 case "1": {
                     fieldMandelbrot.checked = true;
+                    divMandelbrot.hidden = false;
                     break;
                 }
                 case "2": {
@@ -124,6 +131,7 @@ export function setupCookies() {
                 default: {
                 }
             }
+            fieldMandelbrotPower.value = value_3(cookieMandelbrotPower);
             fieldMandelboxScale.value = value_3(cookieMandelboxScale);
             fieldJuliaX.value = value_3(cookieJuliaX);
             fieldJuliaY.value = value_3(cookieJuliaY);
@@ -155,6 +163,8 @@ export const y = createAtom(parse(fieldY.value));
 export const palletteOffset = createAtom(parse(fieldPalletteOffset.value));
 
 export const generator = createAtom(fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldBurningShip.checked ? 3 : (fieldMandelbox.checked ? 4 : -1))));
+
+export const mandelbrotPower = createAtom(parse(fieldMandelbrotPower.value));
 
 export const mandelboxScale = createAtom(parse(fieldMandelboxScale.value));
 
@@ -201,19 +211,22 @@ export function update() {
     document.cookie = toText(printf("palletteoffset=%f"))(arg10_3);
     const arg10_4 = generator() | 0;
     document.cookie = toText(printf("generator=%i"))(arg10_4);
-    const arg10_5 = mandelboxScale();
-    document.cookie = toText(printf("mandelboxscale=%f"))(arg10_5);
-    const arg10_6 = juliaX();
-    document.cookie = toText(printf("jx=%f"))(arg10_6);
-    const arg10_7 = juliaY();
-    document.cookie = toText(printf("jy=%f"))(arg10_7);
-    const arg10_8 = useDoub();
-    document.cookie = toText(printf("usedoub=%b"))(arg10_8);
+    const arg10_5 = mandelbrotPower();
+    document.cookie = toText(printf("mandelbrotpower=%f"))(arg10_5);
+    const arg10_6 = mandelboxScale();
+    document.cookie = toText(printf("mandelboxscale=%f"))(arg10_6);
+    const arg10_7 = juliaX();
+    document.cookie = toText(printf("jx=%f"))(arg10_7);
+    const arg10_8 = juliaY();
+    document.cookie = toText(printf("jy=%f"))(arg10_8);
+    const arg10_9 = useDoub();
+    document.cookie = toText(printf("usedoub=%b"))(arg10_9);
     fieldX.value = x().toString();
     fieldY.value = y().toString();
     fieldZoom.value = zoom().toString();
     fieldPalletteOffset.value = palletteOffset().toString();
     fieldUseDoub.checked = useDoub();
+    fieldMandelbrotPower.value = mandelbrotPower().toString();
     fieldJuliaX.value = juliaX().toString();
     fieldJuliaY.value = juliaY().toString();
     fieldMandelboxScale.value = mandelboxScale().toString();
@@ -232,6 +245,7 @@ export function update() {
     const palletteOffsetUniform = uLoc("uPalletteOffset");
     const ratioUniform = uLoc("uRatio");
     const generatorUniform = uLoc("uGenerator");
+    const mandelbrotPowerUniform = uLoc("uMandelbrotPower");
     const mandelboxScaleUniform = uLoc("uMandelboxScale");
     const juliaXUniform = uLoc("uJuliaX");
     const juliaYUniform = uLoc("uJuliaY");
@@ -254,6 +268,7 @@ export function update() {
     gl.uniform1f(palletteOffsetUniform, palletteOffset());
     gl.uniform1f(ratioUniform, ratio);
     gl.uniform1f(generatorUniform, generator());
+    gl.uniform1f(mandelbrotPowerUniform, mandelbrotPower());
     gl.uniform1f(mandelboxScaleUniform, mandelboxScale());
     gl.uniform1f(juliaXUniform, juliaX());
     gl.uniform1f(juliaYUniform, juliaY());
@@ -288,55 +303,64 @@ fieldY.oninput = ((_arg3) => {
     update();
 });
 
-fieldMandelboxScale.oninput = ((_arg4) => {
+fieldMandelbrotPower.oninput = ((_arg4) => {
+    mandelbrotPower(parse(fieldMandelbrotPower.value), true);
+    update();
+});
+
+fieldMandelboxScale.oninput = ((_arg5) => {
     mandelboxScale(parse(fieldMandelboxScale.value), true);
     update();
 });
 
-fieldPalletteOffset.oninput = ((_arg5) => {
+fieldPalletteOffset.oninput = ((_arg6) => {
     palletteOffset(parse(fieldPalletteOffset.value), true);
     update();
 });
 
-fieldJuliaX.oninput = ((_arg6) => {
+fieldJuliaX.oninput = ((_arg7) => {
     juliaX(parse(fieldJuliaX.value), true);
     update();
 });
 
-fieldJuliaY.oninput = ((_arg7) => {
+fieldJuliaY.oninput = ((_arg8) => {
     juliaY(parse(fieldJuliaY.value), true);
     update();
 });
 
-fieldMandelbrot.oninput = ((_arg8) => {
+fieldMandelbrot.oninput = ((_arg9) => {
     generator(1, true);
+    divMandelbrot.hidden = false;
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
 });
 
-fieldJulia.oninput = ((_arg9) => {
+fieldJulia.oninput = ((_arg10) => {
     generator(2, true);
+    divMandelbrot.hidden = true;
     divJulia.hidden = false;
     divMandelbox.hidden = true;
     update();
 });
 
-fieldBurningShip.oninput = ((_arg10) => {
+fieldBurningShip.oninput = ((_arg11) => {
     generator(3, true);
+    divMandelbrot.hidden = true;
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
 });
 
-fieldMandelbox.oninput = ((_arg11) => {
+fieldMandelbox.oninput = ((_arg12) => {
     generator(4, true);
+    divMandelbrot.hidden = true;
     divJulia.hidden = true;
     divMandelbox.hidden = false;
     update();
 });
 
-fieldJuliaPresets.oninput = ((_arg12) => {
+fieldJuliaPresets.oninput = ((_arg13) => {
     const juliaPreset = parse_1(fieldJuliaPresets.value, 511, false, 32) | 0;
     if (juliaPreset !== -1) {
         const juliaPresetCoords = juliaPresets[juliaPreset];
@@ -348,75 +372,75 @@ fieldJuliaPresets.oninput = ((_arg12) => {
     update();
 });
 
-fieldUseDoub.oninput = ((_arg13) => {
+fieldUseDoub.oninput = ((_arg14) => {
     useDoub(fieldUseDoub.checked, true);
     update();
 });
 
-fieldP1X.oninput = ((_arg14) => {
+fieldP1X.oninput = ((_arg15) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP1C.oninput = ((_arg15) => {
+fieldP1C.oninput = ((_arg16) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP2X.oninput = ((_arg16) => {
+fieldP2X.oninput = ((_arg17) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP2C.oninput = ((_arg17) => {
+fieldP2C.oninput = ((_arg18) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP3X.oninput = ((_arg18) => {
+fieldP3X.oninput = ((_arg19) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP3C.oninput = ((_arg19) => {
+fieldP3C.oninput = ((_arg20) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP4X.oninput = ((_arg20) => {
+fieldP4X.oninput = ((_arg21) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP4C.oninput = ((_arg21) => {
+fieldP4C.oninput = ((_arg22) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP5X.oninput = ((_arg22) => {
+fieldP5X.oninput = ((_arg23) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
     update();
 });
 
-fieldP5C.oninput = ((_arg23) => {
+fieldP5C.oninput = ((_arg24) => {
     updatePoints();
     drawPallette();
     pallette(getColours(76), true);
@@ -571,10 +595,12 @@ buttonReset.onclick = ((_arg4) => {
     useDoub(false, true);
     juliaX(0, true);
     juliaY(0, true);
+    mandelbrotPower(2, true);
     mandelboxScale(3, true);
     generator(1, true);
     fieldJuliaPresets.value = int32ToString(-1);
     fieldMandelbrot.checked = true;
+    divMandelbrot.hidden = false;
     divMandelbox.hidden = true;
     divJulia.hidden = true;
     update();
