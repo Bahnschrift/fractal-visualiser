@@ -7,7 +7,7 @@
     <Compile Include="Cookies.fs" />
     <Compile Include="WebGLHelper.fs" />
     <Compile Include="Shaders.fs" />
-    <Compile Include="PalletteMaker.fs" />
+    <Compile Include="PaletteMaker.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <ItemGroup>

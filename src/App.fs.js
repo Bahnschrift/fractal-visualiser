@@ -1,12 +1,12 @@
 import { replace, printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { findCookieValue } from "./Cookies.fs.js";
-import { buttonResetPallette, drawPallette, updatePoints, getColours, init, fieldP5C, fieldP5X, fieldP4C, fieldP4X, fieldP3C, fieldP3X, fieldP2C, fieldP2X, fieldP1C, fieldP1X, cookieP5C, cookieP5X, cookieP4C, cookieP4X, cookieP3C, cookieP3X, cookieP2C, cookieP2X, cookieP1C, cookieP1X } from "./PalletteMaker.fs.js";
+import { buttonResetpalette, drawpalette, updatePoints, getColours, init, fieldP5C, fieldP5X, fieldP4C, fieldP4X, fieldP3C, fieldP3X, fieldP2C, fieldP2X, fieldP1C, fieldP1X, cookieP5C, cookieP5X, cookieP4C, cookieP4X, cookieP3C, cookieP3X, cookieP2C, cookieP2X, cookieP1C, cookieP1X } from "./PaletteMaker.fs.js";
 import { value as value_3 } from "./.fable/fable-library.3.1.1/Option.js";
 import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-library.3.1.1/Util.js";
 import { parse } from "./.fable/fable-library.3.1.1/Double.js";
 import { createUniformLocation, createAttributeLocation, initBuffers, createShaderProgram, clear } from "./WebGLHelper.fs.js";
 import { fsMandel, vsMandel } from "./Shaders.fs.js";
-import { map, concat } from "./.fable/fable-library.3.1.1/Array.js";
+import { collect } from "./.fable/fable-library.3.1.1/Array.js";
 import { parse as parse_1 } from "./.fable/fable-library.3.1.1/Int32.js";
 import { FSharpSet__Remove, FSharpSet__Add, empty } from "./.fable/fable-library.3.1.1/Set.js";
 import { forAll, getEnumerator } from "./.fable/fable-library.3.1.1/Seq.js";
@@ -22,7 +22,7 @@ export function getDivElement(id) {
     return document.querySelector(toText(printf("#%s"))(id));
 }
 
-export const divPallette = getDivElement("pallettemaker");
+export const divpalette = getDivElement("palettemaker");
 
 export const divMandelbrot = getDivElement("settingsmandelbrot");
 
@@ -40,7 +40,7 @@ export const fieldX = getInputElement("x");
 
 export const fieldY = getInputElement("y");
 
-export const fieldPalletteOffset = getInputElement("palletteoffset");
+export const fieldpaletteOffset = getInputElement("paletteoffset");
 
 export const fieldFractal = getInputElement("fractal");
 
@@ -70,7 +70,7 @@ export function getButtonElement(id) {
 
 export const buttonFullscreen = getButtonElement("fullscreen");
 
-export const buttonPallette = getButtonElement("pallettebutton");
+export const buttonpalette = getButtonElement("palettebutton");
 
 export const buttonCentre = getButtonElement("centre");
 
@@ -84,7 +84,7 @@ export const cookieY = findCookieValue("y");
 
 export const cookieZoom = findCookieValue("zoom");
 
-export const cookiePalletteOffset = findCookieValue("palletteoffset");
+export const cookiepaletteOffset = findCookieValue("paletteoffset");
 
 export const cookieGenerator = findCookieValue("generator");
 
@@ -99,13 +99,12 @@ export const cookieJuliaY = findCookieValue("jy");
 export const cookieUseDoub = findCookieValue("usedoub");
 
 export function setupCookies() {
-    const cookies = [cookieX, cookieY, cookieZoom, cookiePalletteOffset, cookieGenerator, cookieMandelbrotPower, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C];
-    if (cookies.every((c) => (!(c == null)))) {
+    if ([cookieX, cookieY, cookieZoom, cookiepaletteOffset, cookieGenerator, cookieMandelbrotPower, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C].every((c) => (!(c == null)))) {
         try {
             fieldX.value = value_3(cookieX);
             fieldY.value = value_3(cookieY);
             fieldZoom.value = value_3(cookieZoom);
-            fieldPalletteOffset.value = value_3(cookiePalletteOffset);
+            fieldpaletteOffset.value = value_3(cookiepaletteOffset);
             const matchValue = value_3(cookieGenerator);
             switch (matchValue) {
                 case "1": {
@@ -159,7 +158,7 @@ export const x = createAtom(parse(fieldX.value));
 
 export const y = createAtom(parse(fieldY.value));
 
-export const palletteOffset = createAtom(parse(fieldPalletteOffset.value));
+export const paletteOffset = createAtom(parse(fieldpaletteOffset.value));
 
 export const generator = createAtom(fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldBurningShip.checked ? 3 : (fieldMandelbox.checked ? 4 : -1))));
 
@@ -187,27 +186,18 @@ export const shaderProgram = createShaderProgram(gl, vsMandel, fsMandel);
 
 init();
 
-export const pallette = createAtom(getColours(76));
+export const palette = createAtom(getColours(76));
 
 export function update() {
     let arg00;
-    const resizeCanvas = (canvas) => {
-        const displayWidth = canvas.clientWidth;
-        const displayHeight = canvas.clientHeight;
-        const needResize = (canvas.width !== displayWidth) ? true : (canvas.height !== displayHeight);
-        if (needResize) {
-            canvas.width = (window.innerWidth * window.devicePixelRatio);
-            canvas.height = (window.innerHeight * window.devicePixelRatio);
-        }
-    };
     const arg10 = zoom();
     document.cookie = toText(printf("zoom=%f;"))(arg10);
     const arg10_1 = x();
     document.cookie = toText(printf("x=%f;"))(arg10_1);
     const arg10_2 = y();
     document.cookie = toText(printf("y=%f;"))(arg10_2);
-    const arg10_3 = palletteOffset();
-    document.cookie = toText(printf("palletteoffset=%f"))(arg10_3);
+    const arg10_3 = paletteOffset();
+    document.cookie = toText(printf("paletteoffset=%f"))(arg10_3);
     const arg10_4 = generator() | 0;
     document.cookie = toText(printf("generator=%i"))(arg10_4);
     const arg10_5 = mandelbrotPower();
@@ -223,7 +213,7 @@ export function update() {
     fieldX.value = x().toString();
     fieldY.value = y().toString();
     fieldZoom.value = zoom().toString();
-    fieldPalletteOffset.value = palletteOffset().toString();
+    fieldpaletteOffset.value = paletteOffset().toString();
     fieldUseDoub.checked = useDoub();
     fieldMandelbrotPower.value = mandelbrotPower().toString();
     fieldJuliaX.value = juliaX().toString();
@@ -233,15 +223,13 @@ export function update() {
     fieldY.step = (0.1 * zoom()).toString();
     fieldZoom.step = (0.1 * zoom()).toString();
     const patternInput = initBuffers(gl);
-    const positionBuffer = patternInput[0];
-    const colourBuffer = patternInput[1];
     const vertexPositionAttr = createAttributeLocation(gl, shaderProgram, "aVertexPosition");
     const textureCoordAttr = createAttributeLocation(gl, shaderProgram, "aTextureCoord");
     const uLoc = (loc) => createUniformLocation(gl, shaderProgram, loc);
     const zoomUniform = uLoc("uZoom");
     const xcUniform = uLoc("xc");
     const ycUniform = uLoc("yc");
-    const palletteOffsetUniform = uLoc("uPalletteOffset");
+    const paletteOffsetUniform = uLoc("upaletteOffset");
     const ratioUniform = uLoc("uRatio");
     const generatorUniform = uLoc("uGenerator");
     const mandelbrotPowerUniform = uLoc("uMandelbrotPower");
@@ -252,32 +240,30 @@ export function update() {
     const xcDoubUniform = uLoc("xcDoub");
     const ycDoubUniform = uLoc("ycDoub");
     const useDoubUniform = uLoc("uUseDoub");
-    const palletteUniform = uLoc("uPallette");
-    resizeCanvas(gl.canvas);
+    const paletteUniform = uLoc("upalette");
+    const canvas = gl.canvas;
+    if ((canvas.width !== canvas.clientWidth) ? true : (canvas.height !== canvas.clientHeight)) {
+        canvas.width = (window.innerWidth * window.devicePixelRatio);
+        canvas.height = (window.innerHeight * window.devicePixelRatio);
+    }
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.useProgram(shaderProgram);
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, patternInput[0]);
     gl.vertexAttribPointer(vertexPositionAttr, 2, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, patternInput[1]);
     gl.vertexAttribPointer(textureCoordAttr, 2, gl.FLOAT, false, 0, 0);
     const ratio = gl.canvas.width / gl.canvas.height;
     gl.uniform1f(zoomUniform, zoom());
     gl.uniform1f(xcUniform, x());
     gl.uniform1f(ycUniform, y());
-    gl.uniform1f(palletteOffsetUniform, palletteOffset());
+    gl.uniform1f(paletteOffsetUniform, paletteOffset());
     gl.uniform1f(ratioUniform, ratio);
     gl.uniform1f(generatorUniform, generator());
     gl.uniform1f(mandelbrotPowerUniform, mandelbrotPower());
     gl.uniform1f(mandelboxScaleUniform, mandelboxScale());
     gl.uniform1f(juliaXUniform, juliaX());
     gl.uniform1f(juliaYUniform, juliaY());
-    gl.uniform1i(useDoubUniform, useDoub() ? 1 : 0);
-    gl.uniform3fv(palletteUniform, (arg00 = concat(map((tupledArg) => {
-        const r = tupledArg[0];
-        const g = tupledArg[1];
-        const b = tupledArg[2];
-        return new Float64Array([r, g, b]);
-    }, pallette()), Float64Array), new Float32Array(arg00)));
+    gl.uniform3fv(paletteUniform, (arg00 = collect((tupledArg) => (new Float64Array([tupledArg[0], tupledArg[1], tupledArg[2]])), palette(), Float64Array), new Float32Array(arg00)));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.useProgram(shaderProgram);
 }
@@ -309,8 +295,8 @@ fieldMandelboxScale.oninput = ((_arg5) => {
     update();
 });
 
-fieldPalletteOffset.oninput = ((_arg6) => {
-    palletteOffset(parse(fieldPalletteOffset.value), true);
+fieldpaletteOffset.oninput = ((_arg6) => {
+    paletteOffset(parse(fieldpaletteOffset.value), true);
     update();
 });
 
@@ -375,71 +361,71 @@ fieldUseDoub.oninput = ((_arg14) => {
 
 fieldP1X.oninput = ((_arg15) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP1C.oninput = ((_arg16) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP2X.oninput = ((_arg17) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP2C.oninput = ((_arg18) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP3X.oninput = ((_arg19) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP3C.oninput = ((_arg20) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP4X.oninput = ((_arg21) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP4C.oninput = ((_arg22) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP5X.oninput = ((_arg23) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
 fieldP5C.oninput = ((_arg24) => {
     updatePoints();
-    drawPallette();
-    pallette(getColours(76), true);
+    drawpalette();
+    palette(getColours(76), true);
     update();
 });
 
@@ -573,8 +559,8 @@ buttonFullscreen.onclick = ((_arg1) => {
     canv.requestFullscreen();
 });
 
-buttonPallette.onclick = ((_arg2) => {
-    divPallette.hidden = (!divPallette.hidden);
+buttonpalette.onclick = ((_arg2) => {
+    divpalette.hidden = (!divpalette.hidden);
 });
 
 buttonCentre.onclick = ((_arg3) => {
@@ -587,7 +573,7 @@ buttonReset.onclick = ((_arg4) => {
     x(0, true);
     y(0, true);
     zoom(2.5, true);
-    palletteOffset(0, true);
+    paletteOffset(0, true);
     useDoub(false, true);
     juliaX(0, true);
     juliaY(0, true);
@@ -602,7 +588,7 @@ buttonReset.onclick = ((_arg4) => {
     update();
 });
 
-buttonResetPallette.onclick = ((_arg5) => {
+buttonResetpalette.onclick = ((_arg5) => {
     fieldP1X.value = (0).toString();
     fieldP1C.value = "#000764";
     fieldP2X.value = (0.16).toString();
@@ -614,7 +600,7 @@ buttonResetPallette.onclick = ((_arg5) => {
     fieldP5X.value = (0.855).toString();
     fieldP5C.value = "#000200";
     init();
-    pallette(getColours(76), true);
+    palette(getColours(76), true);
     update();
 });
 
@@ -630,7 +616,7 @@ buttonSaveImage.onclick = ((_arg6) => {
                 update();
                 const mode = fieldMandelbrot.checked ? "Mandelbrot" : (fieldJulia.checked ? "Julia" : (fieldBurningShip.checked ? "BurningShip" : "Mandelbox"));
                 let fname;
-                const arg50 = fieldPalletteOffset.value;
+                const arg50 = fieldpaletteOffset.value;
                 const arg40 = fieldZoom.value;
                 const arg30 = fieldY.value;
                 const arg20 = fieldX.value;
