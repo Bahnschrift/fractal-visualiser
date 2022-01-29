@@ -89,7 +89,7 @@ export const fieldP5X = document.getElementById("p5x");
 
 export const fieldP5C = document.getElementById("p5c");
 
-export const buttonResetpalette = document.getElementById("resetpalette");
+export const buttonResetPalette = document.getElementById("resetpalette");
 
 export const cookieP1X = findCookieValue("p1x");
 
@@ -207,7 +207,7 @@ function getNeighbouring(x) {
     return [a, b, c_1, d_1];
 }
 
-export function drawpalette() {
+export function drawPalette() {
     const enumerator = getEnumerator(rangeNumber(0, 1, WIDTH));
     try {
         while (enumerator["System.Collections.IEnumerator.MoveNext"]()) {
@@ -303,6 +303,6 @@ export function getColours(n) {
 
 export function init() {
     updatePoints();
-    drawpalette();
+    drawPalette();
 }
 

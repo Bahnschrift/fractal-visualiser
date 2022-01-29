@@ -1,4 +1,4 @@
-module paletteMaker
+module PaletteMaker
 
 open System
 open Cookies
@@ -69,7 +69,7 @@ let fieldP4X = document.getElementById "p4x" :?> HTMLInputElement
 let fieldP4C = document.getElementById "p4c" :?> HTMLInputElement
 let fieldP5X = document.getElementById "p5x" :?> HTMLInputElement
 let fieldP5C = document.getElementById "p5c" :?> HTMLInputElement
-let buttonResetpalette = document.getElementById "resetpalette" :?> HTMLButtonElement
+let buttonResetPalette = document.getElementById "resetpalette" :?> HTMLButtonElement
 
 let cookieP1X  = findCookieValue "p1x"
 let cookieP1C  = findCookieValue "p1c"
@@ -136,7 +136,7 @@ let private getNeighbouring x =
     let d = scaledPoints.[p.[3]]
     a, b, c, d
 
-let drawpalette () = 
+let drawPalette () = 
     for x in {0.0 .. WIDTH} do
         let ((_, p0r, p0g, p0b), (p1x, p1r, p1g, p1b),  (p2x, p2r, p2g, p2b), (_, p3r, p3g, p3b)) = getNeighbouring x
         let mul = (x - p1x) / (p2x - p1x)
@@ -179,4 +179,4 @@ let getColours (n: int): (float * float * float)[] =
 
 let init () = 
     updatePoints()
-    drawpalette()
+    drawPalette()

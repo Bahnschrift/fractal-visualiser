@@ -26,7 +26,7 @@ let juliaPresets = [|
 |]
 
 let getDivElement id = sprintf "#%s" id |> document.querySelector :?> HTMLDivElement
-let divpalette = getDivElement "palettemaker"
+let divPalette = getDivElement "palettemaker"
 let divMandelbrot = getDivElement "settingsmandelbrot"
 let divMandelbox = getDivElement "settingsmandelbox"
 let divJulia = getDivElement "settingsjulia"
@@ -35,7 +35,7 @@ let getInputElement id = sprintf "#%s" id |> document.querySelector :?> HTMLInpu
 let fieldZoom = getInputElement "zoom"
 let fieldX = getInputElement "x"
 let fieldY = getInputElement "y"
-let fieldpaletteOffset = getInputElement "paletteoffset"
+let fieldPaletteOffset = getInputElement "paletteoffset"
 let fieldFractal = getInputElement "fractal"
 let fieldMandelbrot = getInputElement "mandelbrot"
 let fieldBurningShip = getInputElement "burningship"
@@ -50,7 +50,7 @@ let fieldJuliaPresets = document.querySelector "#juliapresets" :?> HTMLSelectEle
 
 let getButtonElement id = sprintf "#%s" id |> document.querySelector :?> HTMLButtonElement
 let buttonFullscreen = getButtonElement "fullscreen"
-let buttonpalette = getButtonElement "palettebutton"
+let buttonPalette = getButtonElement "palettebutton"
 let buttonCentre = getButtonElement "centre"
 let buttonReset = getButtonElement "reset"
 let buttonSaveImage = getButtonElement "saveimage"
@@ -58,7 +58,7 @@ let buttonSaveImage = getButtonElement "saveimage"
 let cookieX = findCookieValue "x"
 let cookieY = findCookieValue "y"
 let cookieZoom = findCookieValue "zoom"
-let cookiepaletteOffset = findCookieValue "paletteoffset"
+let cookiePaletteOffset = findCookieValue "paletteoffset"
 let cookieGenerator = findCookieValue "generator"
 let cookieMandelbrotPower = findCookieValue "mandelbrotpower"
 let cookieMandelboxScale = findCookieValue "mandelboxscale"
@@ -71,30 +71,30 @@ let setupCookies () =
         cookieX; 
         cookieY; 
         cookieZoom; 
-        cookiepaletteOffset; 
+        cookiePaletteOffset; 
         cookieGenerator; 
         cookieMandelbrotPower;
         cookieMandelboxScale; 
         cookieJuliaX; 
         cookieJuliaY; 
         cookieUseDoub;
-        paletteMaker.cookieP1X;
-        paletteMaker.cookieP1C;
-        paletteMaker.cookieP2X;
-        paletteMaker.cookieP2C;
-        paletteMaker.cookieP3X;
-        paletteMaker.cookieP3C;
-        paletteMaker.cookieP4X;
-        paletteMaker.cookieP4C;
-        paletteMaker.cookieP5X;
-        paletteMaker.cookieP5C;
+        PaletteMaker.cookieP1X;
+        PaletteMaker.cookieP1C;
+        PaletteMaker.cookieP2X;
+        PaletteMaker.cookieP2C;
+        PaletteMaker.cookieP3X;
+        PaletteMaker.cookieP3C;
+        PaletteMaker.cookieP4X;
+        PaletteMaker.cookieP4C;
+        PaletteMaker.cookieP5X;
+        PaletteMaker.cookieP5C;
     |]
     if (Array.forall (fun (c: option<string>) -> not c.IsNone) cookies) then
         try  // Prevents sneaky people from meddling with my cookies
             fieldX.value <- cookieX.Value
             fieldY.value <- cookieY.Value
             fieldZoom.value <- cookieZoom.Value
-            fieldpaletteOffset.value <- cookiepaletteOffset.Value
+            fieldPaletteOffset.value <- cookiePaletteOffset.Value
             match cookieGenerator.Value with
             | "1" -> fieldMandelbrot.checked <- true; divMandelbrot.hidden <- false
             | "2" -> fieldJulia.checked <- true; divJulia.hidden <- false
@@ -106,16 +106,16 @@ let setupCookies () =
             fieldJuliaX.value <- cookieJuliaX.Value
             fieldJuliaY.value <- cookieJuliaY.Value
             fieldUseDoub.checked <- if cookieJuliaY.Value = "true" then true else false
-            paletteMaker.fieldP1X.value <- paletteMaker.cookieP1X.Value
-            paletteMaker.fieldP1C.value <- paletteMaker.cookieP1C.Value
-            paletteMaker.fieldP2X.value <- paletteMaker.cookieP2X.Value
-            paletteMaker.fieldP2C.value <- paletteMaker.cookieP2C.Value
-            paletteMaker.fieldP3X.value <- paletteMaker.cookieP3X.Value
-            paletteMaker.fieldP3C.value <- paletteMaker.cookieP3C.Value
-            paletteMaker.fieldP4X.value <- paletteMaker.cookieP4X.Value
-            paletteMaker.fieldP4C.value <- paletteMaker.cookieP4C.Value
-            paletteMaker.fieldP5X.value <- paletteMaker.cookieP5X.Value
-            paletteMaker.fieldP5C.value <- paletteMaker.cookieP5C.Value
+            PaletteMaker.fieldP1X.value <- PaletteMaker.cookieP1X.Value
+            PaletteMaker.fieldP1C.value <- PaletteMaker.cookieP1C.Value
+            PaletteMaker.fieldP2X.value <- PaletteMaker.cookieP2X.Value
+            PaletteMaker.fieldP2C.value <- PaletteMaker.cookieP2C.Value
+            PaletteMaker.fieldP3X.value <- PaletteMaker.cookieP3X.Value
+            PaletteMaker.fieldP3C.value <- PaletteMaker.cookieP3C.Value
+            PaletteMaker.fieldP4X.value <- PaletteMaker.cookieP4X.Value
+            PaletteMaker.fieldP4C.value <- PaletteMaker.cookieP4C.Value
+            PaletteMaker.fieldP5X.value <- PaletteMaker.cookieP5X.Value
+            PaletteMaker.fieldP5C.value <- PaletteMaker.cookieP5C.Value
         with
         | _ -> ()
 setupCookies()
@@ -123,7 +123,7 @@ setupCookies()
 let mutable zoom = float fieldZoom.value
 let mutable x = float fieldX.value
 let mutable y = float fieldY.value
-let mutable paletteOffset = float fieldpaletteOffset.value
+let mutable paletteOffset = float fieldPaletteOffset.value
 let mutable generator = 
     if fieldMandelbrot.checked then 1  // 1: Mandelrot
     elif fieldJulia.checked then 2  // 2: Julia
@@ -144,8 +144,8 @@ let gl = canv.getContext "webgl" :?> GL
 clear gl
 let shaderProgram = createShaderProgram gl vsMandel fsMandel
 
-paletteMaker.init()
-let mutable palette = paletteMaker.getColours 76
+PaletteMaker.init()
+let mutable palette = PaletteMaker.getColours 76
 
 let update () = 
     let resizeCanvas(canvas: HTMLCanvasElement) = 
@@ -172,7 +172,7 @@ let update () =
     fieldX.value <- string x
     fieldY.value <- string y
     fieldZoom.value <- string zoom
-    fieldpaletteOffset.value <- string paletteOffset
+    fieldPaletteOffset.value <- string paletteOffset
     fieldUseDoub.checked <- useDoub
     fieldMandelbrotPower.value <- string mandelbrotPower
     fieldJuliaX.value <- string juliaX
@@ -192,7 +192,7 @@ let update () =
     let zoomUniform = uLoc "uZoom"
     let xcUniform = uLoc "xc"
     let ycUniform = uLoc "yc"
-    let paletteOffsetUniform = uLoc "upaletteOffset"
+    let paletteOffsetUniform = uLoc "uPaletteOffset"
     let ratioUniform = uLoc "uRatio"
     let generatorUniform = uLoc "uGenerator"
     let mandelbrotPowerUniform = uLoc "uMandelbrotPower"
@@ -203,7 +203,7 @@ let update () =
     let xcDoubUniform = uLoc "xcDoub"
     let ycDoubUniform = uLoc "ycDoub"
     let useDoubUniform = uLoc "uUseDoub"
-    let paletteUniform = uLoc "upalette"
+    let paletteUniform = uLoc "uPalette"
 
     resizeCanvas gl.canvas
     gl.viewport(0.0, 0.0, gl.canvas.width, gl.canvas.height)
@@ -240,7 +240,7 @@ fieldX.oninput <- fun _ -> x <- float fieldX.value; update()
 fieldY.oninput <- fun _ -> y <- float fieldY.value; update()
 fieldMandelbrotPower.oninput <- fun _ -> mandelbrotPower <- float fieldMandelbrotPower.value; update()
 fieldMandelboxScale.oninput <- fun _ -> mandelboxScale <- float fieldMandelboxScale.value; update()
-fieldpaletteOffset.oninput <- fun _ -> paletteOffset <- float fieldpaletteOffset.value; update()
+fieldPaletteOffset.oninput <- fun _ -> paletteOffset <- float fieldPaletteOffset.value; update()
 fieldJuliaX.oninput <- fun _ -> juliaX <- float fieldJuliaX.value; update()
 fieldJuliaY.oninput <- fun _ -> juliaY <- float fieldJuliaY.value; update()
 fieldMandelbrot.oninput <- fun _ -> 
@@ -278,16 +278,16 @@ fieldJuliaPresets.oninput <- fun _ ->
     update()
 fieldUseDoub.oninput <- fun _ -> useDoub <- fieldUseDoub.checked; update()
 
-paletteMaker.fieldP1X.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP1C.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP2X.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP2C.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP3X.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP3C.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP4X.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP4C.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP5X.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
-paletteMaker.fieldP5C.oninput <- fun _ -> paletteMaker.updatePoints(); paletteMaker.drawpalette(); palette <- paletteMaker.getColours 76; update()
+PaletteMaker.fieldP1X.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP1C.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP2X.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP2C.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP3X.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP3C.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP4X.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP4C.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP5X.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
+PaletteMaker.fieldP5C.oninput <- fun _ -> PaletteMaker.updatePoints(); PaletteMaker.drawPalette(); palette <- PaletteMaker.getColours 76; update()
 
 // TODO: Fix this
 let mutable keysDown = Set.empty
@@ -323,8 +323,8 @@ document.onkeyup <- fun e ->
 buttonFullscreen.onclick <- fun _ ->
     canv.requestFullscreen()
 
-buttonpalette.onclick <- fun _ ->
-    divpalette.hidden <- not divpalette.hidden
+buttonPalette.onclick <- fun _ ->
+    divPalette.hidden <- not divPalette.hidden
 
 buttonCentre.onclick <- fun _ ->
     x <- 0.0
@@ -349,19 +349,19 @@ buttonReset.onclick <- fun _ ->
     divJulia.hidden <- true
     update()
 
-paletteMaker.buttonResetpalette.onclick <- fun _ -> 
-    paletteMaker.fieldP1X.value <- string 0.0
-    paletteMaker.fieldP1C.value <- string "#000764"
-    paletteMaker.fieldP2X.value <- string 0.16
-    paletteMaker.fieldP2C.value <- string "#206bcb"
-    paletteMaker.fieldP3X.value <- string 0.42
-    paletteMaker.fieldP3C.value <- string "#edffff"
-    paletteMaker.fieldP4X.value <- string 0.64
-    paletteMaker.fieldP4C.value <- string "#ffaa00"
-    paletteMaker.fieldP5X.value <- string 0.855
-    paletteMaker.fieldP5C.value <- string "#000200"
-    paletteMaker.init()
-    palette <- paletteMaker.getColours 76
+PaletteMaker.buttonResetPalette.onclick <- fun _ -> 
+    PaletteMaker.fieldP1X.value <- string 0.0
+    PaletteMaker.fieldP1C.value <- string "#000764"
+    PaletteMaker.fieldP2X.value <- string 0.16
+    PaletteMaker.fieldP2C.value <- string "#206bcb"
+    PaletteMaker.fieldP3X.value <- string 0.42
+    PaletteMaker.fieldP3C.value <- string "#edffff"
+    PaletteMaker.fieldP4X.value <- string 0.64
+    PaletteMaker.fieldP4C.value <- string "#ffaa00"
+    PaletteMaker.fieldP5X.value <- string 0.855
+    PaletteMaker.fieldP5C.value <- string "#000200"
+    PaletteMaker.init()
+    palette <- PaletteMaker.getColours 76
     update()
 
 buttonSaveImage.onclick <- fun _ ->
@@ -380,7 +380,7 @@ buttonSaveImage.onclick <- fun _ ->
                     elif fieldJulia.checked then "Julia"
                     elif fieldBurningShip.checked then "BurningShip"
                     else "Mandelbox"
-                let fname = sprintf "%s x=%s,y=%s,zoom=%s,offset=%s %sx%s.png" mode fieldX.value fieldY.value fieldZoom.value fieldpaletteOffset.value saveResWidth saveResHeight
+                let fname = sprintf "%s x=%s,y=%s,zoom=%s,offset=%s %sx%s.png" mode fieldX.value fieldY.value fieldZoom.value fieldPaletteOffset.value saveResWidth saveResHeight
                 let link = document.querySelector "#link" :?> HTMLLinkElement
                 link.setAttribute("download", fname)
                 link.setAttribute("href", canv.toDataURL("png").Replace("image/png", "image/octet-stream"))

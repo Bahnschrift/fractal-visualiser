@@ -1,6 +1,6 @@
 import { replace, printf, toText } from "./.fable/fable-library.3.1.1/String.js";
 import { findCookieValue } from "./Cookies.fs.js";
-import { buttonResetpalette, drawpalette, updatePoints, getColours, init, fieldP5C, fieldP5X, fieldP4C, fieldP4X, fieldP3C, fieldP3X, fieldP2C, fieldP2X, fieldP1C, fieldP1X, cookieP5C, cookieP5X, cookieP4C, cookieP4X, cookieP3C, cookieP3X, cookieP2C, cookieP2X, cookieP1C, cookieP1X } from "./PaletteMaker.fs.js";
+import { buttonResetPalette, drawPalette, updatePoints, getColours, init, fieldP5C, fieldP5X, fieldP4C, fieldP4X, fieldP3C, fieldP3X, fieldP2C, fieldP2X, fieldP1C, fieldP1X, cookieP5C, cookieP5X, cookieP4C, cookieP4X, cookieP3C, cookieP3X, cookieP2C, cookieP2X, cookieP1C, cookieP1X } from "./PaletteMaker.fs.js";
 import { value as value_3 } from "./.fable/fable-library.3.1.1/Option.js";
 import { int32ToString, comparePrimitives, createAtom } from "./.fable/fable-library.3.1.1/Util.js";
 import { parse } from "./.fable/fable-library.3.1.1/Double.js";
@@ -22,7 +22,7 @@ export function getDivElement(id) {
     return document.querySelector(toText(printf("#%s"))(id));
 }
 
-export const divpalette = getDivElement("palettemaker");
+export const divPalette = getDivElement("palettemaker");
 
 export const divMandelbrot = getDivElement("settingsmandelbrot");
 
@@ -40,7 +40,7 @@ export const fieldX = getInputElement("x");
 
 export const fieldY = getInputElement("y");
 
-export const fieldpaletteOffset = getInputElement("paletteoffset");
+export const fieldPaletteOffset = getInputElement("paletteoffset");
 
 export const fieldFractal = getInputElement("fractal");
 
@@ -70,7 +70,7 @@ export function getButtonElement(id) {
 
 export const buttonFullscreen = getButtonElement("fullscreen");
 
-export const buttonpalette = getButtonElement("palettebutton");
+export const buttonPalette = getButtonElement("palettebutton");
 
 export const buttonCentre = getButtonElement("centre");
 
@@ -84,7 +84,7 @@ export const cookieY = findCookieValue("y");
 
 export const cookieZoom = findCookieValue("zoom");
 
-export const cookiepaletteOffset = findCookieValue("paletteoffset");
+export const cookiePaletteOffset = findCookieValue("paletteoffset");
 
 export const cookieGenerator = findCookieValue("generator");
 
@@ -99,13 +99,13 @@ export const cookieJuliaY = findCookieValue("jy");
 export const cookieUseDoub = findCookieValue("usedoub");
 
 export function setupCookies() {
-    const cookies = [cookieX, cookieY, cookieZoom, cookiepaletteOffset, cookieGenerator, cookieMandelbrotPower, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C];
+    const cookies = [cookieX, cookieY, cookieZoom, cookiePaletteOffset, cookieGenerator, cookieMandelbrotPower, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C];
     if (cookies.every((c) => (!(c == null)))) {
         try {
             fieldX.value = value_3(cookieX);
             fieldY.value = value_3(cookieY);
             fieldZoom.value = value_3(cookieZoom);
-            fieldpaletteOffset.value = value_3(cookiepaletteOffset);
+            fieldPaletteOffset.value = value_3(cookiePaletteOffset);
             const matchValue = value_3(cookieGenerator);
             switch (matchValue) {
                 case "1": {
@@ -159,7 +159,7 @@ export const x = createAtom(parse(fieldX.value));
 
 export const y = createAtom(parse(fieldY.value));
 
-export const paletteOffset = createAtom(parse(fieldpaletteOffset.value));
+export const paletteOffset = createAtom(parse(fieldPaletteOffset.value));
 
 export const generator = createAtom(fieldMandelbrot.checked ? 1 : (fieldJulia.checked ? 2 : (fieldBurningShip.checked ? 3 : (fieldMandelbox.checked ? 4 : -1))));
 
@@ -223,7 +223,7 @@ export function update() {
     fieldX.value = x().toString();
     fieldY.value = y().toString();
     fieldZoom.value = zoom().toString();
-    fieldpaletteOffset.value = paletteOffset().toString();
+    fieldPaletteOffset.value = paletteOffset().toString();
     fieldUseDoub.checked = useDoub();
     fieldMandelbrotPower.value = mandelbrotPower().toString();
     fieldJuliaX.value = juliaX().toString();
@@ -241,7 +241,7 @@ export function update() {
     const zoomUniform = uLoc("uZoom");
     const xcUniform = uLoc("xc");
     const ycUniform = uLoc("yc");
-    const paletteOffsetUniform = uLoc("upaletteOffset");
+    const paletteOffsetUniform = uLoc("uPaletteOffset");
     const ratioUniform = uLoc("uRatio");
     const generatorUniform = uLoc("uGenerator");
     const mandelbrotPowerUniform = uLoc("uMandelbrotPower");
@@ -252,7 +252,7 @@ export function update() {
     const xcDoubUniform = uLoc("xcDoub");
     const ycDoubUniform = uLoc("ycDoub");
     const useDoubUniform = uLoc("uUseDoub");
-    const paletteUniform = uLoc("upalette");
+    const paletteUniform = uLoc("uPalette");
     resizeCanvas(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.useProgram(shaderProgram);
@@ -308,8 +308,8 @@ fieldMandelboxScale.oninput = ((_arg5) => {
     update();
 });
 
-fieldpaletteOffset.oninput = ((_arg6) => {
-    paletteOffset(parse(fieldpaletteOffset.value), true);
+fieldPaletteOffset.oninput = ((_arg6) => {
+    paletteOffset(parse(fieldPaletteOffset.value), true);
     update();
 });
 
@@ -374,70 +374,70 @@ fieldUseDoub.oninput = ((_arg14) => {
 
 fieldP1X.oninput = ((_arg15) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP1C.oninput = ((_arg16) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP2X.oninput = ((_arg17) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP2C.oninput = ((_arg18) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP3X.oninput = ((_arg19) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP3C.oninput = ((_arg20) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP4X.oninput = ((_arg21) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP4C.oninput = ((_arg22) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP5X.oninput = ((_arg23) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
 
 fieldP5C.oninput = ((_arg24) => {
     updatePoints();
-    drawpalette();
+    drawPalette();
     palette(getColours(76), true);
     update();
 });
@@ -572,8 +572,8 @@ buttonFullscreen.onclick = ((_arg1) => {
     canv.requestFullscreen();
 });
 
-buttonpalette.onclick = ((_arg2) => {
-    divpalette.hidden = (!divpalette.hidden);
+buttonPalette.onclick = ((_arg2) => {
+    divPalette.hidden = (!divPalette.hidden);
 });
 
 buttonCentre.onclick = ((_arg3) => {
@@ -601,7 +601,7 @@ buttonReset.onclick = ((_arg4) => {
     update();
 });
 
-buttonResetpalette.onclick = ((_arg5) => {
+buttonResetPalette.onclick = ((_arg5) => {
     fieldP1X.value = (0).toString();
     fieldP1C.value = "#000764";
     fieldP2X.value = (0.16).toString();
@@ -629,7 +629,7 @@ buttonSaveImage.onclick = ((_arg6) => {
                 update();
                 const mode = fieldMandelbrot.checked ? "Mandelbrot" : (fieldJulia.checked ? "Julia" : (fieldBurningShip.checked ? "BurningShip" : "Mandelbox"));
                 let fname;
-                const arg50 = fieldpaletteOffset.value;
+                const arg50 = fieldPaletteOffset.value;
                 const arg40 = fieldZoom.value;
                 const arg30 = fieldY.value;
                 const arg20 = fieldX.value;

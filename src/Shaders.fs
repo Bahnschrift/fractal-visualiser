@@ -25,7 +25,7 @@ let fsMandel = glsl """
     uniform float uZoom;
     uniform float xc;
     uniform float yc;
-    uniform float upaletteOffset;
+    uniform float uPaletteOffset;
     uniform float uRatio;
     uniform float uGenerator;
     uniform float uMandelbrotPower;
@@ -38,90 +38,90 @@ let fsMandel = glsl """
     uniform vec2 xcDoub;
     uniform vec2 ycDoub;
 
-    uniform vec3 upalette[76];
+    uniform vec3 uPalette[76];
 
     const float MAX = 1000.;
 
-    vec3 getpalette(int index) {
-        if (index == 0) { return upalette[0] / 255.0; }
-        else if (index == 1) { return upalette[1] / 255.0; }
-        else if (index == 2) { return upalette[2] / 255.0; }
-        else if (index == 3) { return upalette[3] / 255.0; }
-        else if (index == 4) { return upalette[4] / 255.0; }
-        else if (index == 5) { return upalette[5] / 255.0; }
-        else if (index == 6) { return upalette[6] / 255.0; }
-        else if (index == 7) { return upalette[7] / 255.0; }
-        else if (index == 8) { return upalette[8] / 255.0; }
-        else if (index == 9) { return upalette[9] / 255.0; }
-        else if (index == 10) { return upalette[10] / 255.0; }
-        else if (index == 11) { return upalette[11] / 255.0; }
-        else if (index == 12) { return upalette[12] / 255.0; }
-        else if (index == 13) { return upalette[13] / 255.0; }
-        else if (index == 14) { return upalette[14] / 255.0; }
-        else if (index == 15) { return upalette[15] / 255.0; }
-        else if (index == 16) { return upalette[16] / 255.0; }
-        else if (index == 17) { return upalette[17] / 255.0; }
-        else if (index == 18) { return upalette[18] / 255.0; }
-        else if (index == 19) { return upalette[19] / 255.0; }
-        else if (index == 20) { return upalette[20] / 255.0; }
-        else if (index == 21) { return upalette[21] / 255.0; }
-        else if (index == 22) { return upalette[22] / 255.0; }
-        else if (index == 23) { return upalette[23] / 255.0; }
-        else if (index == 24) { return upalette[24] / 255.0; }
-        else if (index == 25) { return upalette[25] / 255.0; }
-        else if (index == 26) { return upalette[26] / 255.0; }
-        else if (index == 27) { return upalette[27] / 255.0; }
-        else if (index == 28) { return upalette[28] / 255.0; }
-        else if (index == 29) { return upalette[29] / 255.0; }
-        else if (index == 30) { return upalette[30] / 255.0; }
-        else if (index == 31) { return upalette[31] / 255.0; }
-        else if (index == 32) { return upalette[32] / 255.0; }
-        else if (index == 33) { return upalette[33] / 255.0; }
-        else if (index == 34) { return upalette[34] / 255.0; }
-        else if (index == 35) { return upalette[35] / 255.0; }
-        else if (index == 36) { return upalette[36] / 255.0; }
-        else if (index == 37) { return upalette[37] / 255.0; }
-        else if (index == 38) { return upalette[38] / 255.0; }
-        else if (index == 39) { return upalette[39] / 255.0; }
-        else if (index == 40) { return upalette[40] / 255.0; }
-        else if (index == 41) { return upalette[41] / 255.0; }
-        else if (index == 42) { return upalette[42] / 255.0; }
-        else if (index == 43) { return upalette[43] / 255.0; }
-        else if (index == 44) { return upalette[44] / 255.0; }
-        else if (index == 45) { return upalette[45] / 255.0; }
-        else if (index == 46) { return upalette[46] / 255.0; }
-        else if (index == 47) { return upalette[47] / 255.0; }
-        else if (index == 48) { return upalette[48] / 255.0; }
-        else if (index == 49) { return upalette[49] / 255.0; }
-        else if (index == 50) { return upalette[50] / 255.0; }
-        else if (index == 51) { return upalette[51] / 255.0; }
-        else if (index == 52) { return upalette[52] / 255.0; }
-        else if (index == 53) { return upalette[53] / 255.0; }
-        else if (index == 54) { return upalette[54] / 255.0; }
-        else if (index == 55) { return upalette[55] / 255.0; }
-        else if (index == 56) { return upalette[56] / 255.0; }
-        else if (index == 57) { return upalette[57] / 255.0; }
-        else if (index == 58) { return upalette[58] / 255.0; }
-        else if (index == 59) { return upalette[59] / 255.0; }
-        else if (index == 60) { return upalette[60] / 255.0; }
-        else if (index == 61) { return upalette[61] / 255.0; }
-        else if (index == 62) { return upalette[62] / 255.0; }
-        else if (index == 63) { return upalette[63] / 255.0; }
-        else if (index == 64) { return upalette[64] / 255.0; }
-        else if (index == 65) { return upalette[65] / 255.0; }
-        else if (index == 66) { return upalette[66] / 255.0; }
-        else if (index == 67) { return upalette[67] / 255.0; }
-        else if (index == 68) { return upalette[68] / 255.0; }
-        else if (index == 69) { return upalette[69] / 255.0; }
-        else if (index == 70) { return upalette[70] / 255.0; }
-        else if (index == 71) { return upalette[71] / 255.0; }
-        else if (index == 72) { return upalette[72] / 255.0; }
-        else if (index == 73) { return upalette[73] / 255.0; }
-        else if (index == 74) { return upalette[74] / 255.0; }
-        else if (index == 75) { return upalette[75] / 255.0; }
+    vec3 getPalette(int index) {
+        if (index == 0) { return uPalette[0] / 255.0; }
+        else if (index == 1) { return uPalette[1] / 255.0; }
+        else if (index == 2) { return uPalette[2] / 255.0; }
+        else if (index == 3) { return uPalette[3] / 255.0; }
+        else if (index == 4) { return uPalette[4] / 255.0; }
+        else if (index == 5) { return uPalette[5] / 255.0; }
+        else if (index == 6) { return uPalette[6] / 255.0; }
+        else if (index == 7) { return uPalette[7] / 255.0; }
+        else if (index == 8) { return uPalette[8] / 255.0; }
+        else if (index == 9) { return uPalette[9] / 255.0; }
+        else if (index == 10) { return uPalette[10] / 255.0; }
+        else if (index == 11) { return uPalette[11] / 255.0; }
+        else if (index == 12) { return uPalette[12] / 255.0; }
+        else if (index == 13) { return uPalette[13] / 255.0; }
+        else if (index == 14) { return uPalette[14] / 255.0; }
+        else if (index == 15) { return uPalette[15] / 255.0; }
+        else if (index == 16) { return uPalette[16] / 255.0; }
+        else if (index == 17) { return uPalette[17] / 255.0; }
+        else if (index == 18) { return uPalette[18] / 255.0; }
+        else if (index == 19) { return uPalette[19] / 255.0; }
+        else if (index == 20) { return uPalette[20] / 255.0; }
+        else if (index == 21) { return uPalette[21] / 255.0; }
+        else if (index == 22) { return uPalette[22] / 255.0; }
+        else if (index == 23) { return uPalette[23] / 255.0; }
+        else if (index == 24) { return uPalette[24] / 255.0; }
+        else if (index == 25) { return uPalette[25] / 255.0; }
+        else if (index == 26) { return uPalette[26] / 255.0; }
+        else if (index == 27) { return uPalette[27] / 255.0; }
+        else if (index == 28) { return uPalette[28] / 255.0; }
+        else if (index == 29) { return uPalette[29] / 255.0; }
+        else if (index == 30) { return uPalette[30] / 255.0; }
+        else if (index == 31) { return uPalette[31] / 255.0; }
+        else if (index == 32) { return uPalette[32] / 255.0; }
+        else if (index == 33) { return uPalette[33] / 255.0; }
+        else if (index == 34) { return uPalette[34] / 255.0; }
+        else if (index == 35) { return uPalette[35] / 255.0; }
+        else if (index == 36) { return uPalette[36] / 255.0; }
+        else if (index == 37) { return uPalette[37] / 255.0; }
+        else if (index == 38) { return uPalette[38] / 255.0; }
+        else if (index == 39) { return uPalette[39] / 255.0; }
+        else if (index == 40) { return uPalette[40] / 255.0; }
+        else if (index == 41) { return uPalette[41] / 255.0; }
+        else if (index == 42) { return uPalette[42] / 255.0; }
+        else if (index == 43) { return uPalette[43] / 255.0; }
+        else if (index == 44) { return uPalette[44] / 255.0; }
+        else if (index == 45) { return uPalette[45] / 255.0; }
+        else if (index == 46) { return uPalette[46] / 255.0; }
+        else if (index == 47) { return uPalette[47] / 255.0; }
+        else if (index == 48) { return uPalette[48] / 255.0; }
+        else if (index == 49) { return uPalette[49] / 255.0; }
+        else if (index == 50) { return uPalette[50] / 255.0; }
+        else if (index == 51) { return uPalette[51] / 255.0; }
+        else if (index == 52) { return uPalette[52] / 255.0; }
+        else if (index == 53) { return uPalette[53] / 255.0; }
+        else if (index == 54) { return uPalette[54] / 255.0; }
+        else if (index == 55) { return uPalette[55] / 255.0; }
+        else if (index == 56) { return uPalette[56] / 255.0; }
+        else if (index == 57) { return uPalette[57] / 255.0; }
+        else if (index == 58) { return uPalette[58] / 255.0; }
+        else if (index == 59) { return uPalette[59] / 255.0; }
+        else if (index == 60) { return uPalette[60] / 255.0; }
+        else if (index == 61) { return uPalette[61] / 255.0; }
+        else if (index == 62) { return uPalette[62] / 255.0; }
+        else if (index == 63) { return uPalette[63] / 255.0; }
+        else if (index == 64) { return uPalette[64] / 255.0; }
+        else if (index == 65) { return uPalette[65] / 255.0; }
+        else if (index == 66) { return uPalette[66] / 255.0; }
+        else if (index == 67) { return uPalette[67] / 255.0; }
+        else if (index == 68) { return uPalette[68] / 255.0; }
+        else if (index == 69) { return uPalette[69] / 255.0; }
+        else if (index == 70) { return uPalette[70] / 255.0; }
+        else if (index == 71) { return uPalette[71] / 255.0; }
+        else if (index == 72) { return uPalette[72] / 255.0; }
+        else if (index == 73) { return uPalette[73] / 255.0; }
+        else if (index == 74) { return uPalette[74] / 255.0; }
+        else if (index == 75) { return uPalette[75] / 255.0; }
     }
 
-    vec3 getpaletteSmall(int index) {
+    vec3 getPaletteSmall(int index) {
         if (index == 0) { return vec3(0.01253, 0.08452, 0.51573); }
         else if (index == 1) { return vec3(0.06352, 0.26197, 0.69032); }
         else if (index == 2) { return vec3(0.13598, 0.43791, 0.80556); }
@@ -359,12 +359,12 @@ let fsMandel = glsl """
         vec3 col = vec3(0., 0., 0.);
         if (m != MAX) {
             if (uGenerator == 4.0) {  // Mandelbox
-                m = mod(m + upaletteOffset, 16.0);
-                col = getpaletteSmall(int(m));
+                m = mod(m + uPaletteOffset, 16.0);
+                col = getPaletteSmall(int(m));
             } else {
-                m = mod(m + upaletteOffset, 75.0);
-                vec3 col1 = getpalette(int(m));
-                vec3 col2 = getpalette(int(m) + 1);
+                m = mod(m + uPaletteOffset, 75.0);
+                vec3 col1 = getPalette(int(m));
+                vec3 col2 = getPalette(int(m) + 1);
                 float f = mod(m, 1.0);
                 col = linearInterpolate(col1, col2, f);
             }
