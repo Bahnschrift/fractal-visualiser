@@ -99,7 +99,8 @@ export const cookieJuliaY = findCookieValue("jy");
 export const cookieUseDoub = findCookieValue("usedoub");
 
 export function setupCookies() {
-    if ([cookieX, cookieY, cookieZoom, cookiepaletteOffset, cookieGenerator, cookieMandelbrotPower, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C].every((c) => (!(c == null)))) {
+    const cookies = [cookieX, cookieY, cookieZoom, cookiepaletteOffset, cookieGenerator, cookieMandelbrotPower, cookieMandelboxScale, cookieJuliaX, cookieJuliaY, cookieUseDoub, cookieP1X, cookieP1C, cookieP2X, cookieP2C, cookieP3X, cookieP3C, cookieP4X, cookieP4C, cookieP5X, cookieP5C];
+    if (cookies.every((c) => (!(c == null)))) {
         try {
             fieldX.value = value_3(cookieX);
             fieldY.value = value_3(cookieY);
@@ -190,6 +191,15 @@ export const palette = createAtom(getColours(76));
 
 export function update() {
     let arg00;
+    const resizeCanvas = (canvas) => {
+        const displayWidth = canvas.clientWidth;
+        const displayHeight = canvas.clientHeight;
+        const needResize = (canvas.width !== displayWidth) ? true : (canvas.height !== displayHeight);
+        if (needResize) {
+            canvas.width = (window.innerWidth * window.devicePixelRatio);
+            canvas.height = (window.innerHeight * window.devicePixelRatio);
+        }
+    };
     const arg10 = zoom();
     document.cookie = toText(printf("zoom=%f;"))(arg10);
     const arg10_1 = x();
@@ -223,6 +233,8 @@ export function update() {
     fieldY.step = (0.1 * zoom()).toString();
     fieldZoom.step = (0.1 * zoom()).toString();
     const patternInput = initBuffers(gl);
+    const positionBuffer = patternInput[0];
+    const colourBuffer = patternInput[1];
     const vertexPositionAttr = createAttributeLocation(gl, shaderProgram, "aVertexPosition");
     const textureCoordAttr = createAttributeLocation(gl, shaderProgram, "aTextureCoord");
     const uLoc = (loc) => createUniformLocation(gl, shaderProgram, loc);
@@ -241,16 +253,12 @@ export function update() {
     const ycDoubUniform = uLoc("ycDoub");
     const useDoubUniform = uLoc("uUseDoub");
     const paletteUniform = uLoc("upalette");
-    const canvas = gl.canvas;
-    if ((canvas.width !== canvas.clientWidth) ? true : (canvas.height !== canvas.clientHeight)) {
-        canvas.width = (window.innerWidth * window.devicePixelRatio);
-        canvas.height = (window.innerHeight * window.devicePixelRatio);
-    }
+    resizeCanvas(gl.canvas);
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.useProgram(shaderProgram);
-    gl.bindBuffer(gl.ARRAY_BUFFER, patternInput[0]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.vertexAttribPointer(vertexPositionAttr, 2, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ARRAY_BUFFER, patternInput[1]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer);
     gl.vertexAttribPointer(textureCoordAttr, 2, gl.FLOAT, false, 0, 0);
     const ratio = gl.canvas.width / gl.canvas.height;
     gl.uniform1f(zoomUniform, zoom());
@@ -263,7 +271,12 @@ export function update() {
     gl.uniform1f(mandelboxScaleUniform, mandelboxScale());
     gl.uniform1f(juliaXUniform, juliaX());
     gl.uniform1f(juliaYUniform, juliaY());
-    gl.uniform3fv(paletteUniform, (arg00 = collect((tupledArg) => (new Float64Array([tupledArg[0], tupledArg[1], tupledArg[2]])), palette(), Float64Array), new Float32Array(arg00)));
+    gl.uniform3fv(paletteUniform, (arg00 = collect((tupledArg) => {
+        const r = tupledArg[0];
+        const g = tupledArg[1];
+        const b = tupledArg[2];
+        return new Float64Array([r, g, b]);
+    }, palette(), Float64Array), new Float32Array(arg00)));
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     gl.useProgram(shaderProgram);
 }

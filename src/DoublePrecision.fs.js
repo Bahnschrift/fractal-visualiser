@@ -12,7 +12,8 @@ export function toFloat(num) {
 
 export function splitDouble(num) {
     const upper = toFloat(num);
-    return [upper, toFloat(num - toDouble(upper))];
+    const lower = toFloat(num - toDouble(upper));
+    return [upper, lower];
 }
 
 export class SplitDouble extends Union {
@@ -36,15 +37,19 @@ export function SplitDouble_ofFloat_5E38073B(num) {
 }
 
 export function SplitDouble_Upper_189C8C6F(_arg1) {
-    return _arg1.fields[0];
+    const hi = _arg1.fields[0];
+    return hi;
 }
 
 export function SplitDouble_Lower_189C8C6F(_arg2) {
-    return _arg2.fields[1];
+    const lo = _arg2.fields[1];
+    return lo;
 }
 
 export function SplitDouble_toUniform_189C8C6F(_arg3) {
-    return new Float32Array((new Float64Array([_arg3.fields[0], _arg3.fields[1]])));
+    const lo = _arg3.fields[1];
+    const hi = _arg3.fields[0];
+    return new Float32Array((new Float64Array([hi, lo])));
 }
 
 export function SplitDouble__get_upper(this$) {
@@ -61,12 +66,15 @@ export function SplitDouble__get_toFloat(this$) {
 
 export function SplitDouble_op_Addition_34B29620(_arg4, _arg5) {
     const u1 = _arg4.fields[0];
+    const l1 = _arg4.fields[1];
     const u2 = _arg5.fields[0];
+    const l2 = _arg5.fields[1];
     const t1 = u1 + u2;
     const e = t1 - u1;
-    const t2 = (((u2 - e) + (u1 - (t1 - e))) + _arg4.fields[1]) + _arg5.fields[1];
+    const t2 = (((u2 - e) + (u1 - (t1 - e))) + l1) + l2;
     const u3 = t1 + t2;
-    return new SplitDouble(0, u3, t2 - (u3 - t1));
+    const l3 = t2 - (u3 - t1);
+    return new SplitDouble(0, u3, l3);
 }
 
 export function SplitDouble_op_Multiply_34B29620(_arg6, _arg7) {
@@ -82,11 +90,13 @@ export function SplitDouble_op_Multiply_34B29620(_arg6, _arg7) {
     const a2 = u1 - a1;
     const b2 = u2 - b1;
     const c11 = u1 * u2;
+    const c21 = (a2 * b2) + ((a2 * b1) + ((a1 * b2) + ((a1 * b1) - c11)));
     const c2 = (u1 * l2) + (l1 * u2);
     const t1 = c11 + c2;
     const e = t1 - c11;
-    const t2 = ((l1 * l2) + ((c2 - e) + (c11 - (t1 - e)))) + ((a2 * b2) + ((a2 * b1) + ((a1 * b2) + ((a1 * b1) - c11))));
+    const t2 = ((l1 * l2) + ((c2 - e) + (c11 - (t1 - e)))) + c21;
     const u3 = t1 + t2;
-    return new SplitDouble(0, u3, t2 - (u3 - t1));
+    const l3 = t2 - (u3 - t1);
+    return new SplitDouble(0, u3, l3);
 }
 

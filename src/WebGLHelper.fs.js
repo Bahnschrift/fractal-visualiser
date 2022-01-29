@@ -41,7 +41,9 @@ export function clear(gl) {
 }
 
 export function initBuffers(gl) {
-    return [createBuffer(new Float64Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl), createBuffer(new Float64Array([0, 0, 1, 0, 0, 1, 1, 1]), gl)];
+    const positions = createBuffer(new Float64Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl);
+    const textureCoords = createBuffer(new Float64Array([0, 0, 1, 0, 0, 1, 1, 1]), gl);
+    return [positions, textureCoords];
 }
 
 export function createAttributeLocation(gl, program, name) {
