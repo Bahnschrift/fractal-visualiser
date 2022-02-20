@@ -1,16 +1,14 @@
 {
   "private": true,
   "scripts": {
+    "postinstall": "dotnet tool restore",
     "start": "dotnet fable watch src --run webpack-dev-server",
-    "compile": "dotnet fable src",
-    "build": "npx webpack --mode production"
+    "build": "dotnet fable src && webpack"
   },
   "devDependencies": {
     "webpack": "^4.46.0",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.11.2"
   },
-  "name": "mandelbrot",
-  "version": "1.0.0",
-  "dependencies": {}
+  "version": "1.0.0"
 }
